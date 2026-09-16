@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
@@ -43,6 +44,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--n", type=_non_negative, default=8)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--api-key")
     return parser
 
 
@@ -86,15 +88,27 @@ def _lookup_runner(profile: str) -> LookupRunner:
 
 
 def _run_lookup_item(
-    item: Mapping[str, Any], *, runner: LookupRunner, base_url: str, model: str
+    item: Mapping[str, Any],
+    *,
+    runner: LookupRunner,
+    base_url: str,
+    model: str,
+    api_key: str | None,
 ) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="evidence-battery-") as directory:
         root = lookup_families.materialize(item, directory)
-        return runner(item["question"], root, model=model, base_url=base_url)
+        return runner(
+            item["question"], root, model=model, base_url=base_url, api_key=api_key
+        )
 
 
 def _run_supplied_item(
-    item: Mapping[str, Any], *, runner: LookupRunner, base_url: str, model: str
+    item: Mapping[str, Any],
+    *,
+    runner: LookupRunner,
+    base_url: str,
+    model: str,
+    api_key: str | None,
 ) -> dict[str, dict[str, Any]]:
     variants = item.get("variants")
     if not isinstance(variants, Mapping):
@@ -107,7 +121,11 @@ def _run_supplied_item(
         with tempfile.TemporaryDirectory(prefix="evidence-battery-") as directory:
             root = lookup_families.materialize(variant, directory)
             results[label] = runner(
-                item["question"], root, model=model, base_url=base_url
+                item["question"],
+                root,
+                model=model,
+                base_url=base_url,
+                api_key=api_key,
             )
     return results
 
@@ -124,19 +142,31 @@ def _run_one(item: Mapping[str, Any], args: argparse.Namespace) -> dict[str, Any
         with tempfile.TemporaryDirectory(prefix="evidence-battery-") as directory:
             root = lookup_families.materialize(item, directory)
             result = run_explore(
-                item["question"], root, model=args.model, base_url=args.base_url
+                item["question"],
+                root,
+                model=args.model,
+                base_url=args.base_url,
+                api_key=args.api_key,
             )
         return {**metadata, "result": result, "score": score_explore(item, result)}
 
     runner = _lookup_runner(args.profile)
     if args.set_name == "supplied":
         results = _run_supplied_item(
-            item, runner=runner, base_url=args.base_url, model=args.model
+            item,
+            runner=runner,
+            base_url=args.base_url,
+            model=args.model,
+            api_key=args.api_key,
         )
         return {**metadata, "results": results, "score": score_supplied(item, results)}
 
     result = _run_lookup_item(
-        item, runner=runner, base_url=args.base_url, model=args.model
+        item,
+        runner=runner,
+        base_url=args.base_url,
+        model=args.model,
+        api_key=args.api_key,
     )
     scorer = score_control if args.set_name == "controls" else score_lookup
     return {**metadata, "result": result, "score": scorer(item, result)}
@@ -151,6 +181,7 @@ def _append(path: Path, record: Mapping[str, Any]) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
+    args.api_key = args.api_key or os.environ.get("EVIDENCE_HARNESS_API_KEY")
     _validate_pairing(parser, args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     completed = _completed_ids(args.out) if args.resume else set()

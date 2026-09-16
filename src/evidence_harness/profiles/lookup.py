@@ -8,13 +8,23 @@ from pathlib import Path
 from typing import Any
 
 from evidence_harness.gates.draft import apply_b3
-from evidence_harness.gates.finalize import _gate_payloads, finalizer_request, gate_final
+from evidence_harness.gates.finalize import (
+    DEFAULT_CHAT_TEMPLATE_KWARGS,
+    _gate_payloads,
+    finalizer_request,
+    gate_final,
+)
 from evidence_harness.gates.grounding import final_answer
 from evidence_harness.instruments.usage import UsageRecorder, summarize_calls
-from evidence_harness.loop.messages import _append_exchange, _execute
+from evidence_harness.loop.messages import _append_exchange, _execute, _record_message
 from evidence_harness.tools.base import execute_tool_call
 from evidence_harness.tools.schema import TOOLS_BASE
-from evidence_harness.transport import Transport, _response_parts, http_transport
+from evidence_harness.transport import (
+    Transport,
+    _response_parts,
+    authorization_headers,
+    http_transport,
+)
 
 SYSTEM = (
     "You are investigating a frozen read-only project snapshot. Use read_file, glob, and grep "
@@ -37,15 +47,18 @@ def _chat_payload(
     tools: Sequence[Mapping[str, Any]],
     sampling: Mapping[str, Any],
     max_tokens: int,
+    chat_template_kwargs: Mapping[str, Any] | None = DEFAULT_CHAT_TEMPLATE_KWARGS,
 ) -> dict[str, Any]:
-    return {
+    payload = {
         "model": model,
         "messages": copy.deepcopy(list(messages)),
         "tools": copy.deepcopy(list(tools)),
         **dict(sampling),
         "max_tokens": max_tokens,
-        "chat_template_kwargs": {"enable_thinking": True},
     }
+    if chat_template_kwargs:
+        payload["chat_template_kwargs"] = copy.deepcopy(dict(chat_template_kwargs))
+    return payload
 
 
 def _model_round(
@@ -60,11 +73,20 @@ def _model_round(
     timeout: float,
     max_tokens: int,
     sampling: Mapping[str, Any],
+    chat_template_kwargs: Mapping[str, Any] | None,
+    headers: dict[str, str],
 ) -> dict[str, Any]:
     response = transport(
         endpoint,
-        {},
-        _chat_payload(model, messages, state["tools"], sampling, max_tokens),
+        headers,
+        _chat_payload(
+            model,
+            messages,
+            state["tools"],
+            sampling,
+            max_tokens,
+            chat_template_kwargs,
+        ),
         timeout,
     )
     message, finish = _response_parts(response)
@@ -75,7 +97,7 @@ def _model_round(
     executions = _execute(message, root, round_number, execute)
     record = {
         "round": round_number,
-        "message": copy.deepcopy(message),
+        "message": _record_message(message),
         "finish_reason": finish,
         "executions": executions,
         "harness_action": False,
@@ -124,6 +146,8 @@ def run_lookup(
     max_tokens: int = 4096,
     sampling: Mapping[str, Any] | None = DEFAULT_SAMPLING,
     timeout: float = 600,
+    chat_template_kwargs: Mapping[str, Any] | None = DEFAULT_CHAT_TEMPLATE_KWARGS,
+    api_key: str | None = None,
 ) -> dict[str, Any]:
     """Run the frozen Pc lookup pipeline directly against ``workdir``."""
     chosen = _sampling(sampling)
@@ -143,6 +167,7 @@ def run_lookup(
     recorder.start()
     request = recorder.wrap(transport)
     endpoint = base_url.rstrip("/") + "/chat/completions"
+    headers = authorization_headers(api_key)
     attempted: dict[str, str] | None = None
     answer: dict[str, str] | None = None
     try:
@@ -158,6 +183,8 @@ def run_lookup(
                 timeout=timeout,
                 max_tokens=max_tokens,
                 sampling=chosen,
+                chat_template_kwargs=chat_template_kwargs,
+                headers=headers,
             )
             result["rounds"].append(record)
             result["model_calls"] += 1
@@ -182,13 +209,20 @@ def run_lookup(
 
         if answer is None:
             evidence_rounds = list(result["rounds"])
-            payload = finalizer_request(state, evidence_rounds, model, chosen, max_tokens)
-            response = request(endpoint, {}, payload, timeout)
+            payload = finalizer_request(
+                state,
+                evidence_rounds,
+                model,
+                chosen,
+                max_tokens,
+                chat_template_kwargs,
+            )
+            response = request(endpoint, headers, payload, timeout)
             message, finish = _response_parts(response)
             result["rounds"].append(
                 {
                     "round": max_rounds + 1,
-                    "message": copy.deepcopy(message),
+                    "message": _record_message(message),
                     "executions": [],
                     "finish_reason": finish,
                     "harness_action": True,

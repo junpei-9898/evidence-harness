@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from evidence_harness.loop.messages import _append_exchange, _execute
+from evidence_harness.tools.base import execute_tool_call
 
 
 def test_execute_normalizes_calls_and_uses_repair_off(tmp_path: Path) -> None:
@@ -25,12 +26,34 @@ def test_execute_normalizes_calls_and_uses_repair_off(tmp_path: Path) -> None:
     assert [row["tool_call_id"] for row in actual] == ["call-a", "call-4-1"]
     assert [(row["name"], row["arguments"]) for row in actual] == [
         ("read_file", '{"path":"a"}'),
-        ("", ""),
+        ("", "{}"),
     ]
     assert seen == [
         (tmp_path, "read_file", '{"path":"a"}', "off"),
-        (tmp_path, "", "", "off"),
+        (tmp_path, "", "{}", "off"),
     ]
+
+
+def test_execute_serializes_mapping_arguments_before_read_file(tmp_path: Path) -> None:
+    (tmp_path / "synthetic.txt").write_text("mapped argument content", encoding="utf-8")
+    message = {
+        "tool_calls": [
+            {
+                "id": "call-mapped",
+                "function": {
+                    "name": "read_file",
+                    "arguments": {"path": "synthetic.txt"},
+                },
+            }
+        ]
+    }
+
+    executions = _execute(message, tmp_path, 1, execute_tool_call)
+
+    assert executions[0]["arguments"] == json.dumps(
+        {"path": "synthetic.txt"}, ensure_ascii=False
+    )
+    assert executions[0]["result"]["content"] == "mapped argument content"
 
 
 def test_append_exchange_deep_copies_message_and_serializes_unicode() -> None:

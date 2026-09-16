@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -50,6 +51,28 @@ def _pack_paths(rounds: Sequence[Mapping[str, Any]]) -> list[str]:
     return paths
 
 
+def _parse_chat_template_kwargs(value: str) -> Mapping[str, Any] | None:
+    if value.lower() == "none":
+        return None
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError as error:
+        raise argparse.ArgumentTypeError("must be a JSON object or none") from error
+    if not isinstance(parsed, dict):
+        raise argparse.ArgumentTypeError("must be a JSON object or none")
+    return parsed
+
+
+def _profile_chat_template_kwargs(config: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    configured = config.get("chat_template_kwargs")
+    if isinstance(configured, Mapping):
+        return dict(configured)
+    enabled = config.get("enable_thinking")
+    if isinstance(enabled, bool):
+        return {"enable_thinking": enabled}
+    return None
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="evidence-harness")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -59,6 +82,7 @@ def _parser() -> argparse.ArgumentParser:
     explore.add_argument("--workdir", type=Path, required=True)
     explore.add_argument("--question", required=True)
     explore.add_argument("--max-tokens", type=int, default=16_384)
+    explore.add_argument("--api-key")
     explore.add_argument("--out", type=Path)
     lookup = subparsers.add_parser("lookup", help="run a lookup profile")
     lookup.add_argument("--base-url", required=True)
@@ -67,12 +91,19 @@ def _parser() -> argparse.ArgumentParser:
     lookup.add_argument("--question", required=True)
     lookup.add_argument("--profile", choices=("lookup-pc", "lookup-c"), default="lookup-pc")
     lookup.add_argument("--rules", action="store_true")
+    lookup.add_argument("--api-key")
+    lookup.add_argument(
+        "--chat-template-kwargs",
+        type=_parse_chat_template_kwargs,
+        default=argparse.SUPPRESS,
+    )
     lookup.add_argument("--out", type=Path)
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    api_key = args.api_key or os.environ.get("EVIDENCE_HARNESS_API_KEY")
     if args.command == "explore":
         result = run_explore(
             args.question,
@@ -80,10 +111,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             model=args.model,
             base_url=args.base_url,
             max_tokens=args.max_tokens,
+            api_key=api_key,
         )
     elif args.command == "lookup":
         config = _profile_config(args.profile)
         runner = run_lookup_c if args.profile == "lookup-c" else run_lookup
+        chat_template_kwargs = getattr(
+            args,
+            "chat_template_kwargs",
+            _profile_chat_template_kwargs(config),
+        )
         result = runner(
             args.question,
             args.workdir,
@@ -92,6 +129,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_rounds=int(config["max_rounds"]),
             max_tokens=int(config["max_tokens"]),
             sampling={"temperature": config["temperature"]},
+            chat_template_kwargs=chat_template_kwargs,
+            api_key=api_key,
         )
         if args.rules:
             rule_result = complete(

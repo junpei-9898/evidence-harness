@@ -11,6 +11,23 @@ from typing import Any
 ToolExecutor = Callable[[Path, str, str, str], dict[str, Any]]
 
 
+def _reasoning(message: Mapping[str, Any]) -> str | None:
+    reasoning = message.get("reasoning")
+    if isinstance(reasoning, str):
+        return reasoning
+    reasoning = message.get("reasoning_content")
+    return reasoning if isinstance(reasoning, str) else None
+
+
+def _record_message(message: Mapping[str, Any]) -> dict[str, Any]:
+    """Copy a response message and normalize reasoning only in the trace copy."""
+    recorded = copy.deepcopy(dict(message))
+    reasoning = _reasoning(message)
+    if reasoning is not None:
+        recorded["reasoning"] = reasoning
+    return recorded
+
+
 def _tool_calls(message: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     value = message.get("tool_calls")
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
@@ -31,7 +48,10 @@ def _execute(
         name = function.get("name", "")
         arguments = function.get("arguments", "")
         name = name if isinstance(name, str) else ""
-        arguments = arguments if isinstance(arguments, str) else ""
+        if isinstance(arguments, Mapping):
+            arguments = json.dumps(dict(arguments), ensure_ascii=False)
+        elif not isinstance(arguments, str):
+            arguments = ""
         result = tool_executor(snapshot_root, name, arguments, "off")
         call_id = call.get("id", f"call-{round_number}-{index}")
         executions.append(

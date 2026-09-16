@@ -29,3 +29,10 @@
 接地は `grounded`／`shipped_ungrounded` で別に出す。
 
 ## Mercor: 未実施（載せ替え時期は作者判断）
+
+## 移植性修正後の再 smoke（base・実機 1 台・直列）
+
+| 経路 | 条件 | 結果 |
+|---|---|---|
+| バッテリー lookup 3 件（alias／priority／index） | 既定（thinking kwargs 送信）・`EVIDENCE_HARNESS_API_KEY` を設定（サーバは無視） | Y 3/3・接地 3/3・出荷非接地 0。着地は native 1／もう一度だけ答えさせる段 2。キー文字列は出力 JSON に現れない |
+| CLI lookup 1 問 | `--chat-template-kwargs none`（kwargs 省略） | 正答 4820・根拠 ID 一致・native 着地・4 呼び出し。結果 JSON に kwargs の痕跡なし・最終ラウンド記録に reasoning あり |

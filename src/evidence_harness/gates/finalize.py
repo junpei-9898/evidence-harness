@@ -7,6 +7,8 @@ from typing import Any
 
 from .grounding import content_payloads, is_grounded
 
+DEFAULT_CHAT_TEMPLATE_KWARGS: Mapping[str, Any] = {"enable_thinking": True}
+
 
 def _read_evidence(rounds: Sequence[Mapping[str, Any]]) -> list[tuple[str, str]]:
     """Collect each successfully read path once, in first-read order."""
@@ -50,6 +52,7 @@ def finalizer_request(
     model: str,
     sampling: Mapping[str, Any],
     max_tokens: int,
+    chat_template_kwargs: Mapping[str, Any] | None = DEFAULT_CHAT_TEMPLATE_KWARGS,
 ) -> dict[str, Any]:
     """Build the history-free request; deliberately omit the tools key."""
     system = next(
@@ -62,7 +65,7 @@ def finalizer_request(
     )
     if not isinstance(system, str):
         raise ValueError("state must contain one string system prompt")
-    return {
+    payload = {
         "model": model,
         "messages": [
             {"role": "system", "content": system},
@@ -70,8 +73,10 @@ def finalizer_request(
         ],
         **dict(sampling),
         "max_tokens": max_tokens,
-        "chat_template_kwargs": {"enable_thinking": True},
     }
+    if chat_template_kwargs:
+        payload["chat_template_kwargs"] = dict(chat_template_kwargs)
+    return payload
 
 
 def gate_final(

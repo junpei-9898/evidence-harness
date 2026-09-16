@@ -221,6 +221,27 @@ def test_finalizer_request_is_history_free_tools_free_and_preserves_sampling() -
     assert "tools" not in payload
 
 
+@pytest.mark.parametrize("kwargs", [None, {}])
+def test_finalizer_request_omits_empty_chat_template_kwargs(kwargs: object) -> None:
+    state = {
+        "prefix_messages": [
+            {"role": "system", "content": "Synthetic system."},
+            {"role": "user", "content": "Which synthetic value?"},
+        ]
+    }
+
+    payload = finalizer_request(
+        state,
+        [],
+        "synthetic-model",
+        {"temperature": 0.4},
+        512,
+        kwargs,
+    )
+
+    assert "chat_template_kwargs" not in payload
+
+
 @pytest.mark.parametrize(
     ("answer", "reason"),
     [

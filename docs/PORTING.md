@@ -69,5 +69,5 @@
 ## 5. 研究側との相違（記録）
 
 - 探索: 研究側は `max_tokens=16384`・`timeout=900`・1 回再試行・`temperature: 0` に加えて記録制御ヘッダと `task_id` を送っていた。本リポの explore-v4 は後者 2 つを送らず、他は同一。
-- lookup: 研究側は base tools（`dir_marker=True`）・`max_tokens=4096`・`temperature 0.7`・thinking 有効化 kwargs。本リポの lookup-pc は同一。
+- lookup: 研究側は base tools（`dir_marker=True`）・`max_tokens=4096`・`temperature 0.7`・thinking 有効化 kwargs。本リポの lookup-pc は同一（kwargs は設定で省略可）。
 - 研究側の測定 row はゲート拒否時も観測用 `answer`/`nonce` に attempted 値を残す。本リポの公開結果は出荷値を表すため、`harness_rejected=true` のとき両方を `None` にする。差分試験の研究側判定列も同じ出荷表現へ正規化する。

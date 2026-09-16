@@ -83,3 +83,26 @@ def test_cli_rejects_incompatible_profile_and_set(tmp_path: Path) -> None:
             "--set", "explore",
             "--out", str(tmp_path / "results.jsonl"),
         ])
+
+
+def test_cli_passes_environment_api_key_to_runner(tmp_path: Path, monkeypatch) -> None:
+    output = tmp_path / "results.jsonl"
+    captured = []
+
+    def fake_lookup(_question, _root, **options):
+        captured.append(options["api_key"])
+        return {"answer": None, "nonce": None, "rounds": []}
+
+    monkeypatch.setattr(battery_run, "run_lookup", fake_lookup)
+    monkeypatch.setenv("EVIDENCE_HARNESS_API_KEY", "battery-key")
+
+    battery_run.main([
+        "--base-url", "http://model.invalid/v1",
+        "--model", "synthetic-model",
+        "--profile", "lookup-pc",
+        "--set", "lookup",
+        "--n", "1",
+        "--out", str(output),
+    ])
+
+    assert captured == ["battery-key"]

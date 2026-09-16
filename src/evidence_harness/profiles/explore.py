@@ -16,11 +16,16 @@ from evidence_harness.instruments.monitors import (
 from evidence_harness.instruments.stall import stall_check
 from evidence_harness.instruments.usage import UsageRecorder, retrying
 from evidence_harness.loop.ledger import Ledger
-from evidence_harness.loop.messages import _append_exchange, _execute
+from evidence_harness.loop.messages import _append_exchange, _execute, _reasoning
 from evidence_harness.tools.exclusions import build_exclusion_table, iter_included_files
 from evidence_harness.tools.schema import TOOLS_V4
 from evidence_harness.tools.v4 import make_executor_v4
-from evidence_harness.transport import Transport, _response_parts, http_transport
+from evidence_harness.transport import (
+    Transport,
+    _response_parts,
+    authorization_headers,
+    http_transport,
+)
 
 SYSTEM = (
     "あなたはソフトウェア作業アシスタントです。作業ディレクトリは依頼発生元"
@@ -38,16 +43,11 @@ def _content_hash(content: str | None) -> str | None:
 def _observability(
     response: dict[str, Any], message: dict[str, Any], finish_reason: str | None
 ) -> dict[str, Any]:
-    reasoning = message.get("reasoning")
-    if not isinstance(reasoning, str):
-        reasoning = message.get("reasoning_content")
-    if not isinstance(reasoning, str):
-        reasoning = None
     raw_usage = response.get("usage")
     return {
         "finish_reason": finish_reason,
         "usage": dict(raw_usage) if isinstance(raw_usage, dict) else None,
-        "reasoning": reasoning,
+        "reasoning": _reasoning(message),
     }
 
 
@@ -65,6 +65,7 @@ def run_explore(
     max_rounds: int = 6,
     max_tokens: int = 16_384,
     timeout: float = 900,
+    api_key: str | None = None,
 ) -> dict[str, Any]:
     """Run the frozen V4 exploration profile against a read-only work directory."""
     if max_rounds != 6:
@@ -86,6 +87,7 @@ def run_explore(
     recorder = UsageRecorder()
     recorder.start()
     request = retrying(recorder.wrap(transport), retries=1, backoff=0)
+    headers = authorization_headers(api_key)
 
     for round_number in range(1, max_rounds + 1):
         payload = {
@@ -95,7 +97,9 @@ def run_explore(
             "temperature": 0,
             "max_tokens": max_tokens,
         }
-        response = request(base_url.rstrip("/") + "/chat/completions", {}, payload, timeout)
+        response = request(
+            base_url.rstrip("/") + "/chat/completions", headers, payload, timeout
+        )
         message, finish_reason = _response_parts(response)
         if isinstance(response.get("model"), str):
             response_model = response["model"]

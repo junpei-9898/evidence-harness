@@ -60,6 +60,19 @@ def test_usage_recorder_records_and_reraises_same_error() -> None:
     assert recorder.drain()[0]["error"] == "RuntimeError"
 
 
+def test_usage_recorder_does_not_record_request_headers() -> None:
+    secret = "synthetic-secret-value"
+    recorder = UsageRecorder()
+    recorder.start()
+    wrapped = recorder.wrap(lambda *_args: _response())
+
+    wrapped("u", {"Authorization": f"Bearer {secret}"}, {"messages": []}, 1)
+
+    rendered = repr(recorder.drain())
+    assert secret not in rendered
+    assert "Authorization" not in rendered
+
+
 def test_retrying_preserves_attempts_and_raises_last(monkeypatch) -> None:
     events = []
     values = [OSError("first"), {"ok": True}]

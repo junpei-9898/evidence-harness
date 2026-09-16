@@ -77,6 +77,7 @@ Qwen3.6-35B-A3B（4bit 量子化・vLLM）で、素のモデルと、ハーネ�
 | chat completions API で `tools` を受け取り、`tool_calls` を返し、`role: "tool"` のメッセージを受け付ける | 必須 |
 | 使用トークン数（`usage`）を返す | あると監視に使える |
 | 思考メモ（`reasoning`）を分けて返す | あると「下書き拾い」が働く。無くても「もう一度答えさせる」経路は働く |
+| thinking 制御 kwargs | 任意。lookup は既定で Qwen 系の `enable_thinking` を送る。不要なら `none` で省略できる |
 | `finish_reason` に `stop` / `length` / `tool_calls` を返す | あると長さ上限の検知に使える |
 
 vLLM・mlx_lm.server・Ollama で動作を確認しています。
@@ -93,6 +94,8 @@ uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -e '.[de
 # 1 つの値を答えさせる（lookup 向け）
 .venv/bin/evidence-harness lookup  --base-url http://HOST:PORT/v1 --model NAME --workdir DIR --question "..." --profile lookup-pc --out result.json
 ```
+
+認証が必要な場合は `--api-key` または環境変数 `EVIDENCE_HARNESS_API_KEY` を使います。lookup の thinking 設定は `--chat-template-kwargs '{"enable_thinking":false}'` で上書きし、`none` で送信を省略できます。
 
 | プロファイル | 用途 | 既定 |
 |---|---|---|

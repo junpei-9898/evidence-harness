@@ -7,7 +7,7 @@ nonce が tool 結果本文（`result.content`・メタデータ除外）に含�
 ## 1. `lookup-pc`（研究側 Pc＝B3＋救済 finalize）
 
 1. `messages = [system=SYSTEM_LOOKUP, user=question]`・tools は base 契約（`read_file(path)`／`glob(pattern)`／`grep(pattern, path)`・glob は `dir_marker=True`）。
-2. 最大 6 ラウンド、payload `{"model","messages","tools","temperature":0.7（既定・上書き可）,"max_tokens":4096,"chat_template_kwargs":{"enable_thinking":true}}`。
+2. 最大 6 ラウンド、payload `{"model","messages","tools","temperature":0.7（既定・上書き可）,"max_tokens":4096,"chat_template_kwargs":{"enable_thinking":true}}`。`chat_template_kwargs` は既定 `{"enable_thinking":true}` で、設定により省略できる。
 3. tool_calls が無いラウンドで `final_answer(message)`（content 中の最初の `{answer,nonce}` JSON）を読む。得られれば `landing_source="native"` で終了。
 4. 6 ラウンド内に着地しない（`_structural_cap`: 最終 message が tool_calls あり／content 空／`finish_reason!="stop"`）とき **B3**: 最終ラウンドの `reasoning` から `{answer,nonce}` の草稿を全て拾い、**唯一**の草稿で・複合回答でなく・nonce が tool 結果本文に含まれるものだけ採択（`b3_reason`: `not_cap|no_draft|conflicting_drafts|compound_answer|nonce_ungrounded`）。採択後 `gate_final`（nonce 逐語接地）で再確認。
 5. まだ無ければ **救済 finalize**（7 回目の呼び出し・`extra_calls+=1`）: 履歴を捨て `[system, user = question + "\n\nEvidence collected (path: content):\n" + 各 read_file の path:content]` を tools なしで送る。返答を `final_answer` → `gate_final`（`unparseable_final_answer|empty_nonce|nonce_ungrounded` で拒否）。

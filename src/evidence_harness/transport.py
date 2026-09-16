@@ -11,6 +11,13 @@ import httpx
 Transport = Callable[[str, dict[str, str], dict, float], dict]
 
 
+def authorization_headers(api_key: str | None) -> dict[str, str]:
+    """Build request-only authentication headers when a key is configured."""
+    if not api_key:
+        return {}
+    return {"Authorization": f"Bearer {api_key}"}
+
+
 def _status_code(error: Exception) -> int | None:
     if isinstance(error, httpx.HTTPStatusError):
         return error.response.status_code

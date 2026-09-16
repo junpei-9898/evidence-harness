@@ -9,14 +9,23 @@ from pathlib import Path
 from typing import Any
 
 from evidence_harness.gates.draft import apply_b3
-from evidence_harness.gates.finalize import _gate_payloads, finalizer_request
+from evidence_harness.gates.finalize import (
+    DEFAULT_CHAT_TEMPLATE_KWARGS,
+    _gate_payloads,
+    finalizer_request,
+)
 from evidence_harness.gates.grounding import final_answer, is_grounded
 from evidence_harness.gates.identity import strict_gate
 from evidence_harness.instruments.usage import UsageRecorder
-from evidence_harness.loop.messages import _append_exchange
+from evidence_harness.loop.messages import _append_exchange, _record_message
 from evidence_harness.tools.base import execute_tool_call
 from evidence_harness.tools.schema import TOOLS_BASE
-from evidence_harness.transport import Transport, _response_parts, http_transport
+from evidence_harness.transport import (
+    Transport,
+    _response_parts,
+    authorization_headers,
+    http_transport,
+)
 
 from .lookup import DEFAULT_SAMPLING, SYSTEM, _base_result, _finish, _model_round, _sampling
 
@@ -122,6 +131,8 @@ def run_lookup_c(
     max_tokens: int = 4096,
     sampling: Mapping[str, Any] | None = DEFAULT_SAMPLING,
     timeout: float = 600,
+    chat_template_kwargs: Mapping[str, Any] | None = DEFAULT_CHAT_TEMPLATE_KWARGS,
+    api_key: str | None = None,
 ) -> dict[str, Any]:
     """Run the frozen C lookup pipeline directly against ``workdir``."""
     chosen = _sampling(sampling)
@@ -142,6 +153,7 @@ def run_lookup_c(
     recorder.start()
     request = recorder.wrap(transport)
     endpoint = base_url.rstrip("/") + "/chat/completions"
+    headers = authorization_headers(api_key)
     attempted: dict[str, str] | None = None
     answer: dict[str, str] | None = None
     native_candidate: dict[str, str] | None = None
@@ -160,6 +172,8 @@ def run_lookup_c(
                 timeout=timeout,
                 max_tokens=max_tokens,
                 sampling=chosen,
+                chat_template_kwargs=chat_template_kwargs,
+                headers=headers,
             )
             result["rounds"].append(record)
             model_calls += 1
@@ -194,13 +208,20 @@ def run_lookup_c(
             result["rounds"].extend(retrieval)
             result["extra_calls"] += len(retrieval)
             evidence_rounds = list(result["rounds"])
-            payload = finalizer_request(state, evidence_rounds, model, chosen, max_tokens)
-            response = request(endpoint, {}, payload, timeout)
+            payload = finalizer_request(
+                state,
+                evidence_rounds,
+                model,
+                chosen,
+                max_tokens,
+                chat_template_kwargs,
+            )
+            response = request(endpoint, headers, payload, timeout)
             message, finish = _response_parts(response)
             result["rounds"].append(
                 {
                     "round": round_number + 1,
-                    "message": copy.deepcopy(message),
+                    "message": _record_message(message),
                     "executions": [],
                     "finish_reason": finish,
                     "harness_action": True,
@@ -236,13 +257,20 @@ def run_lookup_c(
                     result["reject_reason"] = strict_reason
             if answer is None:
                 evidence_rounds = source_rounds
-                payload = finalizer_request(state, evidence_rounds, model, chosen, max_tokens)
-                response = request(endpoint, {}, payload, timeout)
+                payload = finalizer_request(
+                    state,
+                    evidence_rounds,
+                    model,
+                    chosen,
+                    max_tokens,
+                    chat_template_kwargs,
+                )
+                response = request(endpoint, headers, payload, timeout)
                 message, finish = _response_parts(response)
                 result["rounds"].append(
                     {
                         "round": max_rounds + 1,
-                        "message": copy.deepcopy(message),
+                        "message": _record_message(message),
                         "executions": [],
                         "finish_reason": finish,
                         "harness_action": True,
