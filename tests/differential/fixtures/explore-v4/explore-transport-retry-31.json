@@ -1,0 +1,53 @@
+{
+  "id": "explore-transport-retry-31",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "tx:error_then_retry_ok"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-transport-retry-31.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "raise": "TimeoutError"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "取得した証拠では確認できない"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "c26e7bb6b259fa4ef11f4f81e303f20a39d6c549082696b8b22462edec82c0ad",
+      "c26e7bb6b259fa4ef11f4f81e303f20a39d6c549082696b8b22462edec82c0ad"
+    ],
+    "decisions": {
+      "tool_result_sha256": [],
+      "stall_judgments": [],
+      "gate_reason": "abstain",
+      "gate_quote_length_ok": null
+    }
+  }
+}

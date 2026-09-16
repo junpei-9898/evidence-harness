@@ -1,0 +1,81 @@
+{
+  "id": "explore-paging-offset-01",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "paging:offset",
+    "paging:has_more",
+    "gate:passed"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-paging-offset-01.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\": \"docs/alpha.txt\", \"offset\": 0, \"max_chars\": 120}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "Generated answer.\n出典: docs/alpha.txt\n引用: The synthetic evidence states that copper widgets require exactly seven blue fasteners."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "a2883117f9768667d9008a2337d8770b8e529bda2b6692fa6c106994c65c8501",
+      "17ac9a5bdeef5707a4b7cb604305dcebb20855cac71aae453ffab17ec70493ec"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "5793607d2befe00dd7ff23fc035f94f30e5fe8c66dfce7c6bf621d78b1aeccf2"
+      ],
+      "stall_judgments": [],
+      "gate_reason": "passed",
+      "gate_quote_length_ok": true
+    }
+  }
+}

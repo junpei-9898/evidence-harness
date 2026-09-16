@@ -1,0 +1,11 @@
+profile: lookup-pc
+tools: base
+dir_marker: true
+max_rounds: 6
+max_tokens: 4096
+temperature: 0.7
+enable_thinking: true
+b3_draft: true
+rescue_finalize: true
+c_layer: false
+rules: false

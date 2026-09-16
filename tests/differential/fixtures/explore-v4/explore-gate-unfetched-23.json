@@ -1,0 +1,49 @@
+{
+  "id": "explore-gate-unfetched-23",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "gate:source_not_fetched"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-gate-unfetched-23.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "Generated answer.\n出典: docs/alpha.txt\n引用: The synthetic evidence states that copper widgets require exactly seven blue fasteners."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "d4ae0edfeb641d2296fc301a43417ec595458e7ba9290a836acc05aa00ce4919"
+    ],
+    "decisions": {
+      "tool_result_sha256": [],
+      "stall_judgments": [],
+      "gate_reason": "source_not_fetched",
+      "gate_quote_length_ok": true
+    }
+  }
+}

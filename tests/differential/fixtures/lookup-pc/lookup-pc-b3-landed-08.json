@@ -1,0 +1,70 @@
+{
+  "id": "lookup-pc-b3-landed-08",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:landed"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Extract the synthetic value.",
+  "config": {
+    "max_rounds": 2
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-read",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\":\"docs/value.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "draft {\"answer\":\"42\",\"nonce\":\"nonce-real\"}",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "6303a37f4f010055fb5a47f9c21b358287097b67d5175943dd767fc7976eed13",
+      "373d7acdcd29d4c71e5c51df9017d41eaa4aad8ad4457c6ac1e7b207b72b9e02"
+    ],
+    "decisions": {
+      "landing_source": "b3",
+      "b3_reason": "None",
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 0,
+      "model_calls": 2,
+      "answer": "42",
+      "nonce": "nonce-real"
+    }
+  }
+}

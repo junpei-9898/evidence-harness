@@ -1,0 +1,82 @@
+{
+  "id": "lookup-c-retrieve-two-accept-01",
+  "profile": "lookup-c",
+  "branch_tags": [
+    "c:early_gate_fired",
+    "c:retrieve_2",
+    "c:reset_finalize_accept"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "value=41\nnonce-alpha\n",
+      "docs/beta.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Find the synthetic target value.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"region\",\"nonce\":\"nonce-fake\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "e64378a46aaf7e18479f2e99e2afda726403d8d1bf1a2718fccd1fe9f35b2e97",
+      "8a5d6e1fa53edaf84c76146551518159fd4642fbf2af78086519041349a38777"
+    ],
+    "decisions": {
+      "landing_source": "finalizer",
+      "b3_reason": null,
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 4,
+      "model_calls": 2,
+      "answer": "42",
+      "nonce": "nonce-real",
+      "gate_fired": true,
+      "checkpoint": "retrieval",
+      "strict_reject_reason": null,
+      "retrieval_arguments": [
+        {
+          "name": "grep",
+          "arguments": {
+            "pattern": "nonce"
+          }
+        },
+        {
+          "name": "read_file",
+          "arguments": {
+            "path": "docs/alpha.txt"
+          }
+        },
+        {
+          "name": "read_file",
+          "arguments": {
+            "path": "docs/beta.txt"
+          }
+        }
+      ]
+    }
+  }
+}

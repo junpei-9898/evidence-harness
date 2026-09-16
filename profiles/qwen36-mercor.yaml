@@ -1,0 +1,7 @@
+# checkpoint 別プロファイルの例（Qwen3.6-35B-A3B Mercor・NVFP4）。Pc 相当＋v4 探索。C 層・R-A/R-B は OFF（研究側で保留・`docs/CLAIMS.md`）。
+profile: qwen36-mercor
+lookup: lookup-pc
+explore: explore-v4
+c_layer: false
+rules: false
+recipe: recipes/qwen36-mercor-nvfp4-vllm.md

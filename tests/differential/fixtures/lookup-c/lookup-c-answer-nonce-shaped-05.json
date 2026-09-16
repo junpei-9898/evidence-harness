@@ -1,0 +1,70 @@
+{
+  "id": "lookup-c-answer-nonce-shaped-05",
+  "profile": "lookup-c",
+  "branch_tags": [
+    "c:strict_answer_is_nonce_shaped"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Return the synthetic value, not its marker.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-read",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\":\"docs/value.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"nonce-real\",\"nonce\":\"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "a6a5cafa892f5920bbe88343ea3c6017bc86e95fd085c185100cdd1da4713a20",
+      "401dd4de1e5f444225cdf49d9866778680eb721ee39c0d4d6e3e90fe15dccd79"
+    ],
+    "decisions": {
+      "landing_source": "native",
+      "b3_reason": null,
+      "harness_rejected": true,
+      "reject_reason": "answer_is_nonce_shaped",
+      "extra_calls": 0,
+      "model_calls": 2,
+      "answer": null,
+      "nonce": null,
+      "gate_fired": false,
+      "checkpoint": "none",
+      "strict_reject_reason": "answer_is_nonce_shaped",
+      "retrieval_arguments": []
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "lookup-pc-finalizer-reads-only-09",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:no_draft",
+    "fin:accepted",
+    "fin:reads_only_payloads"
+  ],
+  "workdir": {
+    "files": {
+      "docs/index.txt": "synthetic nonce-real marker"
+    }
+  },
+  "question": "Search for the synthetic marker.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-grep",
+                "type": "function",
+                "function": {
+                  "name": "grep",
+                  "arguments": "{\"pattern\":\"nonce\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "no structured draft",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "ae0cb2b5c91c280f8d64d6f94cb23d14cbb6f56d3ed68553f670a5f21093cd27",
+      "f36d43f9b7c235f22080d12b22a3636ebcbfdd24a9dc7e594b3ac5968d55b75c",
+      "c4685f0c1823f3d7e10c80f4a200e792b251fc44cbb6bb6665081b49ee47f099"
+    ],
+    "decisions": {
+      "landing_source": "finalizer",
+      "b3_reason": "no_draft",
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 1,
+      "model_calls": 3,
+      "answer": "42",
+      "nonce": "nonce-real"
+    }
+  }
+}

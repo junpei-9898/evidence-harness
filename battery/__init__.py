@@ -1,0 +1,2 @@
+"""Deterministic public diagnostic battery."""
+

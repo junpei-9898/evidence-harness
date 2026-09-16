@@ -1,0 +1,78 @@
+{
+  "id": "lookup-pc-native-grounded-01",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "pc:native_grounded"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Find the synthetic value.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 4096,
+    "sampling": {
+      "temperature": 0.7
+    }
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-read",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\":\"docs/value.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 2
+      }
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 4
+      }
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "a43dc451c41960b1c66f8e8f18d22579a5029f4fc1e06fb2d123a908824a1eac",
+      "ba7587f36d5e3925f60043a52ae2d28b11af88b12c3b760cee32033b72abc380"
+    ],
+    "decisions": {
+      "landing_source": "native",
+      "b3_reason": null,
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 0,
+      "model_calls": 2,
+      "answer": "42",
+      "nonce": "nonce-real"
+    }
+  }
+}

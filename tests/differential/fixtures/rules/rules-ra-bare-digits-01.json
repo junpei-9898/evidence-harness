@@ -1,0 +1,21 @@
+{
+  "id": "rules-ra-bare-digits-01",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:bare_digits"
+  ],
+  "answer": "42",
+  "rounds": [],
+  "pack_paths": [],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": "42",
+      "answer_raw": "42",
+      "extracted": false,
+      "extract_reason": "bare_digits",
+      "nonlanded_by_type_check": false,
+      "type_reason": "skipped_value"
+    }
+  }
+}

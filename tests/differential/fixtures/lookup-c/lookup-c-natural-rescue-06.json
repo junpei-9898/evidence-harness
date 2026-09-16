@@ -1,0 +1,86 @@
+{
+  "id": "lookup-c-natural-rescue-06",
+  "profile": "lookup-c",
+  "branch_tags": [
+    "b3:no_draft",
+    "c:rescue_after_natural_nonland"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Recover the synthetic target value.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-read",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\":\"docs/value.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "no draft",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "3d47ff62e7fe92ec837d44cce153c96dbc66a62687aa607002242b92a02e6c00",
+      "0fe71d6ab7f273151f912cc0af8835e7e99450193ae2f4c204cd61dae76e6184",
+      "f0b69bd8597dea238f48d8a454044b5b164bf625c54c3be911c603721e6e8d15"
+    ],
+    "decisions": {
+      "landing_source": "finalizer_rescue",
+      "b3_reason": "no_draft",
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 1,
+      "model_calls": 3,
+      "answer": "42",
+      "nonce": "nonce-real",
+      "gate_fired": false,
+      "checkpoint": "none",
+      "strict_reject_reason": null,
+      "retrieval_arguments": []
+    }
+  }
+}

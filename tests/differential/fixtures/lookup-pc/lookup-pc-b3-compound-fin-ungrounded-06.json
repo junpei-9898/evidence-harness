@@ -1,0 +1,59 @@
+{
+  "id": "lookup-pc-b3-compound-fin-ungrounded-06",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:compound_answer",
+    "fin:nonce_ungrounded"
+  ],
+  "workdir": {
+    "files": {
+      "docs/placeholder.txt": "synthetic placeholder"
+    }
+  },
+  "question": "Return one synthetic value only.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "{\"answer\":\"alias -> 42\",\"nonce\":\"nonce-fake\"}",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-fake\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "5eca2ca395adf4f62beb72ad02c29fc312e8a941aeae35b3fd30610171cf6192",
+      "d6274753ca7571d0c9c63a7d3dd53cb1efb19b6777ab6e003a35a5c936b85b8c"
+    ],
+    "decisions": {
+      "landing_source": null,
+      "b3_reason": "compound_answer",
+      "harness_rejected": true,
+      "reject_reason": "nonce_ungrounded",
+      "extra_calls": 1,
+      "model_calls": 2,
+      "answer": null,
+      "nonce": null
+    }
+  }
+}

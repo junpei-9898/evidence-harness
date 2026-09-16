@@ -1,0 +1,22 @@
+{
+  "id": "rules-rb-empty-07",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:no_digit",
+    "rb:empty"
+  ],
+  "answer": "  , / ; 、 ",
+  "rounds": [],
+  "pack_paths": [],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": null,
+      "answer_raw": "  , / ; 、 ",
+      "extracted": false,
+      "extract_reason": "no_digit_token",
+      "nonlanded_by_type_check": false,
+      "type_reason": "empty"
+    }
+  }
+}

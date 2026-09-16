@@ -1,0 +1,5 @@
+profile: lookup-c
+extends: lookup-pc
+c_layer: true
+identity_strict: true
+retrieval_max_reads: 2

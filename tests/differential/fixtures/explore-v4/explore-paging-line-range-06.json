@@ -1,0 +1,79 @@
+{
+  "id": "explore-paging-line-range-06",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "paging:line_out_of_range"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-paging-line-range-06.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\": \"docs/alpha.txt\", \"line\": 999}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "取得した証拠では確認できない"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "6f61640f13e84b04df5d454bbcfb1cd15436c849fd7f92184ec3b20bf6b5ae84",
+      "25773d335800612b80c5c8cad4b8267f259c450b29be5999a20e26fa8ec7aa4e"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "f8581346548ea9e3e9668f833cc9f807e176227e4a1f6c024f049aa2a77c487c"
+      ],
+      "stall_judgments": [],
+      "gate_reason": "abstain",
+      "gate_quote_length_ok": null
+    }
+  }
+}

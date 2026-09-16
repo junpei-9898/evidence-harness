@@ -1,0 +1,22 @@
+{
+  "id": "rules-ra-no-digit-04",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:no_digit",
+    "rb:non_identifier"
+  ],
+  "answer": "synthetic-value",
+  "rounds": [],
+  "pack_paths": [],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": null,
+      "answer_raw": "synthetic-value",
+      "extracted": false,
+      "extract_reason": "no_digit_token",
+      "nonlanded_by_type_check": false,
+      "type_reason": "has_non_identifier_token"
+    }
+  }
+}

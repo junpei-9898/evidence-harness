@@ -1,0 +1,8 @@
+profile: explore-v4
+tools: v4
+dir_marker: false
+max_rounds: 6
+max_tokens: 16384
+temperature: 0
+stall_check: observe
+citation_gate: true

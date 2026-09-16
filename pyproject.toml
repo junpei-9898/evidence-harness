@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "evidence-harness"
+version = "0.0.1"
+description = "Experimental client-side harness that assists source-citing and file-reference behaviour of OpenAI-compatible chat models."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+dependencies = ["httpx>=0.27", "pyyaml>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+evidence-harness = "evidence_harness.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/evidence_harness", "battery"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"profiles" = "profiles"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "src"]

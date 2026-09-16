@@ -1,0 +1,22 @@
+{
+  "id": "rules-ra-ambiguous-03",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:ambiguous",
+    "rb:non_identifier"
+  ],
+  "answer": "42 or 43",
+  "rounds": [],
+  "pack_paths": [],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": null,
+      "answer_raw": "42 or 43",
+      "extracted": false,
+      "extract_reason": "ambiguous_digit_tokens",
+      "nonlanded_by_type_check": false,
+      "type_reason": "has_non_identifier_token"
+    }
+  }
+}

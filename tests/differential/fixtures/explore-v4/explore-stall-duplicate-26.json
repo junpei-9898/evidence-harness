@@ -1,0 +1,118 @@
+{
+  "id": "explore-stall-duplicate-26",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "stall:duplicate_request",
+    "stall:no_new_path_or_span"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-stall-duplicate-26.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "grep",
+                  "arguments": "{\"pattern\": \"absent\", \"path\": \"docs/alpha.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-2",
+                "type": "function",
+                "function": {
+                  "name": "grep",
+                  "arguments": "{\"pattern\": \"absent\", \"path\": \"docs/alpha.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "取得した証拠では確認できない"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "07b9184bff9db01084702545fb88cbbf15f33c270c2e1585dc097547702e6f1a",
+      "f38606d4490368ba562a3362c1443bddf45a437c70fc24f4987ef3be52b36bf6",
+      "ad1ef8847bcbd6c6dbb9b8d13ee08654b261a1def3edde4d239f3e840ea6d854"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "7a2d5ae1c1a76c837a271c251f38f567a4178dcb2caab674023fd8e96f010014",
+        "7a2d5ae1c1a76c837a271c251f38f567a4178dcb2caab674023fd8e96f010014"
+      ],
+      "stall_judgments": [
+        {
+          "fired": true,
+          "reasons": [
+            "duplicate_request",
+            "no_new_path_or_span",
+            "single_document_type"
+          ]
+        }
+      ],
+      "gate_reason": "abstain",
+      "gate_quote_length_ok": null
+    }
+  }
+}

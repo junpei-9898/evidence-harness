@@ -1,0 +1,80 @@
+{
+  "id": "lookup-pc-b3-not-cap-finalizer-03",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:not_cap",
+    "fin:accepted"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Read and return the synthetic value.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-read",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\":\"docs/value.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "Synthetic prose without JSON."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "57bab1ea336d25fc0a9d508fdc5af1f6c31c4f631831f308092d563e2e474dd3",
+      "cc97053beb5a39e64b6cbc63975ce8d986451b0f9e25819937a2fb2a721b2c72",
+      "3d448269c3be778697e1a5806bc7ad2eedd27cb8a0fcacf25de424cb584c325a"
+    ],
+    "decisions": {
+      "landing_source": "finalizer",
+      "b3_reason": "not_cap",
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 1,
+      "model_calls": 3,
+      "answer": "42",
+      "nonce": "nonce-real"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "lookup-pc-b3-conflict-empty-05",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:conflicting_drafts",
+    "fin:empty_nonce"
+  ],
+  "workdir": {
+    "files": {
+      "docs/placeholder.txt": "synthetic placeholder"
+    }
+  },
+  "question": "Resolve the synthetic value.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "{\"answer\":\"42\",\"nonce\":\"nonce-one\"} then {\"answer\":\"43\",\"nonce\":\"nonce-two\"}",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "1d48306b024a95a6058475683f7a8f95105ce8c43cf995e1472a89023c20e5e1",
+      "ef82883495e57d94aa815e2e34c236f9c4259d4532ee4f0328c98df35796e7f3"
+    ],
+    "decisions": {
+      "landing_source": null,
+      "b3_reason": "conflicting_drafts",
+      "harness_rejected": true,
+      "reject_reason": "empty_nonce",
+      "extra_calls": 1,
+      "model_calls": 2,
+      "answer": null,
+      "nonce": null
+    }
+  }
+}

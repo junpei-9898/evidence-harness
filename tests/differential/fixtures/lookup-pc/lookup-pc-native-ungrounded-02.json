@@ -1,0 +1,43 @@
+{
+  "id": "lookup-pc-native-ungrounded-02",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "pc:native_ungrounded"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Return a synthetic lookup value.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-fake\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "c89d9eb3448fb14f74364b02a7c471e6c69fbf4c2d3fa60342c79ba317ba4a90"
+    ],
+    "decisions": {
+      "landing_source": "native",
+      "b3_reason": null,
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 0,
+      "model_calls": 1,
+      "answer": "42",
+      "nonce": "nonce-fake"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "lookup-pc-b3-duplicate-unparseable-04",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:no_draft",
+    "b3:duplicate_key_json",
+    "fin:unparseable"
+  ],
+  "workdir": {
+    "files": {
+      "docs/placeholder.txt": "synthetic placeholder"
+    }
+  },
+  "question": "Find a synthetic value if present.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "{\"answer\":\"42\",\"answer\":\"43\",\"nonce\":\"nonce-real\"}",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "No JSON value is available."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "d471c748e979aa956140226f8864c5cff5b2e489131efd4a7570fae613a9bbf6",
+      "c497e92e5eb1836d127912e56b3ae30f97107c89e315b369324fbe4d3596d523"
+    ],
+    "decisions": {
+      "landing_source": null,
+      "b3_reason": "no_draft",
+      "harness_rejected": true,
+      "reject_reason": "unparseable_final_answer",
+      "extra_calls": 1,
+      "model_calls": 2,
+      "answer": null,
+      "nonce": null
+    }
+  }
+}

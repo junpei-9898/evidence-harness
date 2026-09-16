@@ -1,0 +1,28 @@
+{
+  "id": "explore-transport-shape-33",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "tx:bad_response_shape"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-transport-shape-33.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {}
+  ],
+  "expected": {
+    "request_sha256": [
+      "9b392faf83636d21bdb594e48e113c2c76312b6636882f07f7604cc305606c71"
+    ],
+    "error": "ValueError"
+  }
+}

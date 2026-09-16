@@ -1,0 +1,68 @@
+{
+  "id": "lookup-c-retrieve-zero-02",
+  "profile": "lookup-c",
+  "branch_tags": [
+    "c:early_gate_fired",
+    "c:retrieve_0"
+  ],
+  "workdir": {
+    "files": {
+      "docs/placeholder.txt": "synthetic marker without token"
+    }
+  },
+  "question": "Find a synthetic target if available.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\":\"42\",\"nonce\":\"nonce-fake\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "No structured result."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "66f0c8d628123c07fe2207c37552b6f5a85e34a2cb25b1118f1270a447d3ac7a",
+      "7ef69ac0effe5560c74c9f38d447040bca6aa6a1a1c2e7ef0cc47d98b35e75f2"
+    ],
+    "decisions": {
+      "landing_source": "finalizer",
+      "b3_reason": null,
+      "harness_rejected": true,
+      "reject_reason": "unparseable_final_answer",
+      "extra_calls": 2,
+      "model_calls": 2,
+      "answer": null,
+      "nonce": null,
+      "gate_fired": true,
+      "checkpoint": "retrieval",
+      "strict_reject_reason": "unparseable_final_answer",
+      "retrieval_arguments": [
+        {
+          "name": "grep",
+          "arguments": {
+            "pattern": "nonce"
+          }
+        }
+      ]
+    }
+  }
+}

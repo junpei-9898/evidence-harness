@@ -1,0 +1,59 @@
+{
+  "id": "lookup-pc-b3-ungrounded-07",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:nonce_ungrounded",
+    "fin:unparseable"
+  ],
+  "workdir": {
+    "files": {
+      "docs/placeholder.txt": "synthetic placeholder"
+    }
+  },
+  "question": "Locate a synthetic numeric value.",
+  "config": {},
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "reasoning": "{\"answer\":\"42\",\"nonce\":\"nonce-fake\"}",
+            "tool_calls": []
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "No structured answer."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "657e963ea542c196fab28fcfa5d098e036ffeb89d08a1fb08e0af71598463faa",
+      "e62f7a8c5200d8f5d9426de3b04d7f63bcd2248481b0991928358c8a182e73ea"
+    ],
+    "decisions": {
+      "landing_source": null,
+      "b3_reason": "nonce_ungrounded",
+      "harness_rejected": true,
+      "reject_reason": "unparseable_final_answer",
+      "extra_calls": 1,
+      "model_calls": 2,
+      "answer": null,
+      "nonce": null
+    }
+  }
+}

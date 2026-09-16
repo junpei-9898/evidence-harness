@@ -1,0 +1,21 @@
+{
+  "id": "rules-ra-unique-token-02",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:unique_digit_token"
+  ],
+  "answer": "answer: \"42\".",
+  "rounds": [],
+  "pack_paths": [],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": "42",
+      "answer_raw": "answer: \"42\".",
+      "extracted": true,
+      "extract_reason": "unique_digit_token",
+      "nonlanded_by_type_check": false,
+      "type_reason": "skipped_value"
+    }
+  }
+}

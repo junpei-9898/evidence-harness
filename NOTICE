@@ -1,0 +1,11 @@
+evidence-harness
+Copyright (c) 2026 Jumpei Nakata
+Licensed under the MIT License (see LICENSE).
+
+This repository contains client-side code only. It does not contain, redistribute,
+or modify any model weights. Model checkpoints referenced from `recipes/` are
+distributed by their respective publishers under their own licenses; consult those
+licenses before use.
+
+Portions of this code were ported from a private research repository by the same
+author (see docs/PORTING.md for the source commit, file digests, and function map).

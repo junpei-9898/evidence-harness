@@ -1,0 +1,79 @@
+{
+  "id": "explore-glob-excluded-12",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "glob:excluded_dir"
+  ],
+  "workdir": {
+    "files": {
+      "visible.txt": "visible\n",
+      "node_modules/hidden.txt": "hidden\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-glob-excluded-12.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"**/*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "取得した証拠では確認できない"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "936880d87551e3079d86e87a33e569f9010938fe0bdc540b157cf2af3be2c0a1",
+      "80fd0c3dac0aea5363f2169b4f6981b5bf201c27b7b4c064b72f45813039aad2"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "9f0490dd1af2e7289a29e0f8dafb104fae578691706fbcecd9d1fc660fc5ca24"
+      ],
+      "stall_judgments": [],
+      "gate_reason": "abstain",
+      "gate_quote_length_ok": null
+    }
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "id": "explore-budget-round-cap-29",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "budget:round_cap"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nThe synthetic evidence states that copper widgets require exactly seven blue fasteners.\nA [marker] appears only in this generated line.\nFirst multiline segment contains generated evidence.\nSecond multiline segment completes the generated evidence.\n",
+      "src/beta.txt": "A second synthetic document provides another independently generated observation.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-budget-round-cap-29.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"missing-1*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-2",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"missing-2*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-3",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"missing-3*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-4",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"missing-4*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-5",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"missing-5*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-6",
+                "type": "function",
+                "function": {
+                  "name": "glob",
+                  "arguments": "{\"pattern\": \"missing-6*\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "6ff1bfd95345167e55e62bc9bd7bc905254f979955edb59fff863b617bf5b2e1",
+      "5793c63656d318453274dd12cad6ea2a61c2d76a5dc9b74a88914f842a3efa35",
+      "0303e7963d799c9cc423a77f8d63620c71a2de42a87ae92253c0093eacc185ba",
+      "e05b05b9463cb62261982d311b846726367afa2ba7245b65d4db7adcff29447d",
+      "16ba81a47158147c30193dd673a367b1a3799dc913436d9384d004f7c28c7788",
+      "5ebdea56d5d4a5d3794628cdd2ec1b6f80a721f599741c08b87478f4dbe8131f"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "0d0b0976060ef1e2451ff4a256906e5c6cea1ddea591599cd60e0cdb15ffd125",
+        "ae77314effab063aa5f2fdc858872a479199223692f1d44185d24c4be80b842d",
+        "c447d961687cb5aaac2062baa51de5fa954df4aa2ae04a83731b789432b8917e",
+        "8842e2c485ed06889c5c12a31288b74598f3a22907a5b955734e1489cefd6054",
+        "0ff7a4771ba8a99b9bb2bc405bd68aae2fb3a6f4ad4d0d58310c910684ee1005",
+        "4512b905aa7191ebcb0cc38841729e4e51ca693db5925ce8127e4c526acfd9e0"
+      ],
+      "stall_judgments": [
+        {
+          "fired": true,
+          "reasons": [
+            "no_new_path_or_span"
+          ]
+        },
+        {
+          "fired": true,
+          "reasons": [
+            "no_new_path_or_span"
+          ]
+        }
+      ],
+      "gate_reason": "missing_source",
+      "gate_quote_length_ok": false
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "rules-rb-non-identifier-06",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:no_digit",
+    "rb:non_identifier"
+  ],
+  "answer": "region, external",
+  "rounds": [],
+  "pack_paths": [
+    "docs/region.md"
+  ],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": null,
+      "answer_raw": "region, external",
+      "extracted": false,
+      "extract_reason": "no_digit_token",
+      "nonlanded_by_type_check": false,
+      "type_reason": "has_non_identifier_token"
+    }
+  }
+}

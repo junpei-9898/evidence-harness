@@ -1,0 +1,38 @@
+{
+  "id": "rules-rb-identifiers-05",
+  "profile": "rules",
+  "branch_tags": [
+    "ra:no_digit",
+    "rb:all_identifiers"
+  ],
+  "answer": "region, total",
+  "rounds": [
+    {
+      "round": 1,
+      "executions": [
+        {
+          "name": "read_file",
+          "arguments": "{\"path\":\"docs/region.md\"}",
+          "result": {
+            "path": "docs/region.md",
+            "content": "# total\nregion=synthetic\n"
+          }
+        }
+      ]
+    }
+  ],
+  "pack_paths": [
+    "docs/region.md"
+  ],
+  "expected": {
+    "request_sha256": [],
+    "decisions": {
+      "answer": null,
+      "answer_raw": "region, total",
+      "extracted": false,
+      "extract_reason": "no_digit_token",
+      "nonlanded_by_type_check": true,
+      "type_reason": "all_tokens_identifiers"
+    }
+  }
+}
