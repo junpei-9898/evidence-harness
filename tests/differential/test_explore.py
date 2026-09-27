@@ -35,6 +35,7 @@ def test_explore_matches_reference(
             max_rounds=config.get("max_rounds", 6),
             max_tokens=config.get("max_tokens", 16_384),
             timeout=config.get("timeout", 900),
+            citation_contract=config.get("citation_contract", "v1"),
         )
     except Exception as error:
         assert expected.get("error") == type(error).__name__

@@ -16,6 +16,8 @@
 - 同一性ゲート strict（identity-strict-1.0）: `6ae27022f36a9d8b40cddacf0c2ce08f084b8e43164e3f9d6b6afcba3ad9e7ff`
 - 識別子抽出（region-repair-1.0）: `a099e3f0de2dd5b6341c4a8ff26124c24e10286cfe58eb682f76aec25a26de40`
 - 下書き拾い: `B3_VERSION = "1.2"`
+- 値形式契約文（`value_contract: digits-only`・逐語）: `sha256 = 83395ae409056ad0747de5efb65aadc2c065972345ccece78e96ea6a8533e86a`
+- 選択的 R-A: `selective-ra-1.0`（規則本体は上記「決定論的補完」と同一 digest）
 
 ## 2. 部品対応表
 
@@ -39,6 +41,9 @@
 | 規則 R-A/R-B | `evidence_harness/rules/deterministic.py` | **OFF** | byte 凍結（digest は §1）。数値 lookup 契約のタスクにのみ明示 ON |
 | 計器 | `evidence_harness/instruments/usage.py`, `instruments/monitors.py` | ON | 要求/応答を改変しない |
 | system prompt（lookup／explore） | 各 profile モジュールの `SYSTEM` | ON | byte 同一 |
+| 出典ゲート 契約 v2 | `evidence_harness/gates/citation.py`（`contract` 引数） | **OFF**（v1 既定・`qwen38-flash` プロファイルで v2） | v2.0-unwrap1: 引用行が生のままで一致しないとき、外側 1 層の backtick／二重引用符を 1 回だけ剥がして再照合する。受理判定だけが広がり、出荷本文・出典・引用文字列は変えない。結果に `quote_match_form`／`gate_contract` を残す |
+| 値形式契約 | `evidence_harness/profiles/lookup.py`（`value_contract` 鍵） | **OFF**（`qwen38-flash` で ON） | 共通 system の末尾に逐語 1 文を追記（byte 同一・digest は §1）。救済 finalize も同じ system を再利用する |
+| 選択的 R-A | `evidence_harness/rules/selective_ra.py`（`selective_ra` 鍵） | **OFF**（`qwen38-flash` で ON） | 出荷 answer が「純数字トークンをちょうど 1 つ含む非適合文字列」のときだけその値に置換する。bare digits／曖昧／無 token は不変。`complete()`（`rules`）とは独立。変換前後の出荷オブジェクトと規則 digest を結果に残す |
 | 公開 lookup 合成生成器 | `battery/lookup_families.py` | 診断 CLI で明示実行 | 指定 6 型の純粋生成部分だけを抽出し公開 item 形式へ変換。gold は作業ディレクトリへ展開しない |
 
 ## 3. 移植しなかったもの（評価専用依存）
@@ -67,6 +72,8 @@
 | `finish_reason` `stop`/`length`/`tool_calls` | ✓ | ✓ | 未確認 |
 
 ## 5. 研究側との相違（記録）
+
+- 出典ゲートの既定契約: 研究側は 2026-09-22 以降 v2.0-unwrap1 を探索ループの既定にした。本リポは qwen3.6 の凍結結果を再現できるよう **v1 を既定のまま**とし、v2 は checkpoint プロファイル（`qwen38-flash`）だけが ON にする。
 
 - 探索: 研究側は `max_tokens=16384`・`timeout=900`・1 回再試行・`temperature: 0` に加えて記録制御ヘッダと `task_id` を送っていた。本リポの explore-v4 は後者 2 つを送らず、他は同一。
 - lookup: 研究側は base tools（`dir_marker=True`）・`max_tokens=4096`・`temperature 0.7`・thinking 有効化 kwargs。本リポの lookup-pc は同一（kwargs は設定で省略可）。

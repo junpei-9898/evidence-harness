@@ -15,7 +15,25 @@ ANSWER_FORMAT = (
     "『取得した証拠では確認できない』と書き、出典行と引用行は書かない。"
 )
 ABSTAIN_TEXT = "取得した証拠では確認できない"
+GATE_CONTRACT_V1 = "v1"                 # whitespace-normalized verbatim only
+GATE_CONTRACT_V2 = "v2.0-unwrap1"       # + one symmetric outer wrapper layer
+GATE_CONTRACT_DEFAULT = GATE_CONTRACT_V1
+# v2.0: only wrappers whose recovery was validated upstream (backtick, double quote).
+# Fences, triple backticks, other quotes/brackets, JSON string decoding, grep multi-line
+# joins are NOT unwrapped in this version (each would be a separate transform id).
+UNWRAP_PAIRS_V2 = (("`", "`", "backtick"), ('"', '"', "dquote"))
 GATE_FAILURE = "取得した証拠では確認できないため、回答を確定できません。"
+
+_CONTRACT_ALIASES = {"v1": GATE_CONTRACT_V1, "v2": GATE_CONTRACT_V2}
+
+
+def normalize_citation_contract(value: str) -> str:
+    """Resolve a caller-facing short alias ("v1"/"v2") to the byte-identical contract id.
+
+    Anything already fully-qualified (e.g. "v2.0-unwrap1") or unrecognized passes through
+    unchanged; only the two public short names are rewritten.
+    """
+    return _CONTRACT_ALIASES.get(value, value)
 
 
 def _normalize_space(value: str) -> str:
@@ -87,17 +105,53 @@ def returned_evidence(ledger: Ledger) -> dict[str, dict[str, Any]]:
     return output
 
 
-def quote_is_returned(path: str, quote: str, ledger: Ledger) -> bool:
+def unwrap_outer_once(quote: str) -> list[tuple[str, str]]:
+    """Return [(form, candidate)]: the raw quote first, then at most one layer removed.
+
+    Only single backtick and double quote pairs (v2.0). The inner text must be non-empty
+    after stripping outer whitespace; asymmetric wrappers produce no candidate; the layer
+    is removed once.
+    """
+    out = [("raw", quote)]
+    stripped = quote.strip()
+    for left, right, form in UNWRAP_PAIRS_V2:
+        wrapped = stripped.startswith(left) and stripped.endswith(right)
+        if len(stripped) > len(left) + len(right) and wrapped:
+            inner = stripped[len(left):len(stripped) - len(right)].strip()
+            if inner:
+                out.append((f"unwrapped_{form}", inner))
+    return out
+
+
+def _quote_match_form(path: str, quote: str, ledger: Ledger, contract: str) -> str | None:
     evidence = returned_evidence(ledger).get(_normalize_path(path))
     if evidence is None:
-        return False
-    needle = _normalize_space(quote)
-    values = list(evidence["read_runs"]) + list(evidence["grep_lines"])
-    return bool(needle) and any(needle in _normalize_space(value) for value in values)
+        return None
+    runs = list(evidence["read_runs"]) + list(evidence["grep_lines"])
+    values = [_normalize_space(v) for v in runs]
+    candidates = unwrap_outer_once(quote) if contract == GATE_CONTRACT_V2 else [("raw", quote)]
+    for form, candidate in candidates:
+        needle = _normalize_space(candidate)
+        if needle and any(needle in value for value in values):
+            return form
+    return None
 
 
-def apply_gate(content: str | None, ledger: Ledger) -> dict[str, Any]:
-    """Require an exact fetched path and a verbatim whitespace-normalized quote."""
+def quote_is_returned(
+    path: str, quote: str, ledger: Ledger, contract: str = GATE_CONTRACT_V1
+) -> bool:
+    return _quote_match_form(path, quote, ledger, contract) is not None
+
+
+def apply_gate(
+    content: str | None, ledger: Ledger, contract: str = GATE_CONTRACT_V1
+) -> dict[str, Any]:
+    """Require an exact fetched path and a verbatim whitespace-normalized quote.
+
+    contract v1: the 引用 line as written. contract v2.0-unwrap1: if the raw line does not match,
+    retry once with one symmetric outer backtick / double-quote layer removed. Body, source path and
+    the quote text as shipped are never modified; only the acceptance test widens.
+    """
     parsed = parse_answer(content)
     if parsed["abstain"]:
         return {
@@ -111,16 +165,20 @@ def apply_gate(content: str | None, ledger: Ledger) -> dict[str, Any]:
         reason = "missing_quote"
     elif source not in returned_evidence(ledger):
         reason = "source_not_fetched"
-    elif not quote_is_returned(source, quote, ledger):
+    elif (form := _quote_match_form(source, quote, ledger, contract)) is None:
         reason = "quote_not_verbatim"
     else:
+        matched = quote if form == "raw" else dict(unwrap_outer_once(quote))[form]
         return {
             "passed": True, "abstain": False, "reason": "passed",
             "quote_length_ok": 20 <= len(quote) <= 200,
+            "quote_length_ok_matched": 20 <= len(matched) <= 200,
+            "quote_match_form": form, "gate_contract": contract,
             "gated_content": content or "", **parsed,
         }
     return {
         "passed": False, "abstain": False, "reason": reason,
         "quote_length_ok": bool(quote) and 20 <= len(quote) <= 200,
+        "quote_match_form": None, "gate_contract": contract,
         "gated_content": GATE_FAILURE, **parsed,
     }

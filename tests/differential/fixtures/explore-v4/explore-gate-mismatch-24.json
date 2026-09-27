@@ -73,7 +73,10 @@
       ],
       "stall_judgments": [],
       "gate_reason": "quote_not_verbatim",
-      "gate_quote_length_ok": true
+      "gate_quote_length_ok": true,
+      "gate_quote_match_form": null,
+      "gate_quote_length_ok_matched": null,
+      "gate_contract": "v1"
     }
   }
 }

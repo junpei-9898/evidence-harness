@@ -47,6 +47,7 @@ def test_explore_command_dispatches_and_writes_result(
             "model": "synthetic-model",
             "base_url": "http://model.invalid/v1",
             "max_tokens": 321,
+            "citation_contract": "v1",
             "api_key": None,
         },
     }

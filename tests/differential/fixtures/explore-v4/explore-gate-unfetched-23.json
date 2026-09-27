@@ -43,7 +43,10 @@
       "tool_result_sha256": [],
       "stall_judgments": [],
       "gate_reason": "source_not_fetched",
-      "gate_quote_length_ok": true
+      "gate_quote_length_ok": true,
+      "gate_quote_match_form": null,
+      "gate_quote_length_ok_matched": null,
+      "gate_contract": "v1"
     }
   }
 }

@@ -54,6 +54,9 @@ def decisions(result: Mapping[str, Any]) -> dict[str, Any]:
         "stall_judgments": stalls,
         "gate_reason": gate.get("reason"),
         "gate_quote_length_ok": gate.get("quote_length_ok"),
+        "gate_quote_match_form": gate.get("quote_match_form"),
+        "gate_quote_length_ok_matched": gate.get("quote_length_ok_matched"),
+        "gate_contract": gate.get("gate_contract"),
     }
 
 

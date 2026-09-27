@@ -23,6 +23,7 @@
 - 回答末尾の `出典: <path>` / `引用: <20〜200 字>` の 2 行を読む（本文からの推測はしない）。
 - `出典` が Ledger の取得済みパスに無い → `source_not_fetched`。引用が取得済み read 片・grep 行に空白正規化で含まれない → `quote_not_verbatim`。いずれも `GATE_FAILURE` 文に置換。
 - 本文に `ABSTAIN_TEXT` を含み出典行が無い → 棄権として通す。
+- **契約 `citation_contract`**（プロファイル鍵・既定 `v1`）: `v2`（v2.0-unwrap1）では、引用行が生のままで一致しないとき、`quote.strip()` の外側が対称な単一 backtick 対または二重引用符対であればその 1 層だけを剥がし、内側（`strip()` 後・空でないこと）で再照合する。剥がすのは 1 回だけ。非対称・三連 backtick・コードフェンス・他の括弧は剥がさない。受理判定だけが広がり、出荷する本文・出典・引用文字列は変更しない。結果に `quote_match_form`（`raw|unwrapped_backtick|unwrapped_dquote|None`）・`gate_contract`・`quote_length_ok_matched`（剥がした後の長さ判定）を残す。
 
 ## 4. 監視計器（`instruments/`）
 
@@ -30,4 +31,4 @@
 
 ## 5. 既定と適用範囲の記述
 
-qwen3.6-35B-A3B NVFP4（vLLM・thinking ON）・実リポ lookup 質問・round 6・max_tokens 16,384 で研究側が判断採用した構成。Mercor checkpoint は候補併記（`docs/CLAIMS.md`）。
+qwen3.6-35B-A3B NVFP4（vLLM・thinking ON）・実リポ lookup 質問・round 6・max_tokens 16,384 で研究側が判断採用した構成。Mercor checkpoint は候補併記（`docs/CLAIMS.md`）。Qwen3.8-Flash-Next では同じループに `citation_contract: v2` を重ねた構成を `qwen38-flash` プロファイルとして置く（研究側の保存 480 走への再適用で判断採用・`docs/CLAIMS.md`）。qwen3.6 での v2 は未測定のため既定にしない。

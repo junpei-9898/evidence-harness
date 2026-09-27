@@ -1,0 +1,83 @@
+{
+  "id": "explore-gate-v2-empty-inner-38",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "gate:v2_empty_inner_not_unwrapped"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nGenerated evidence confirms that the teal marker was logged twice.\nA [marker] appears only in this generated line.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-gate-v2-empty-inner-38.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0,
+    "citation_contract": "v2"
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\": \"docs/alpha.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "Generated answer.\n出典: docs/alpha.txt\n引用: \" \""
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "96e6b3860419954fc3a874cc34585433924a2d3088bb3d66ad9527227ebd2424",
+      "b759a3e832b28e127b82cabdf5feb87c1d70a7561c76be1d2f2974b8a5f55af0"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "85edf5c7e61f6730d54ba682915512890eab687e4b44a800de4d4236c7628797"
+      ],
+      "stall_judgments": [],
+      "gate_reason": "quote_not_verbatim",
+      "gate_quote_length_ok": false,
+      "gate_quote_match_form": null,
+      "gate_quote_length_ok_matched": null,
+      "gate_contract": "v2.0-unwrap1"
+    }
+  },
+  "_note": "quote is a dquote/space/dquote triple (len 3): unwrap_outer_once's length guard (len(stripped) > len(left)+len(right)) passes, but the inner substring is whitespace-only so .strip() empties it and no unwrapped_dquote candidate is produced (raw also fails to match). quote_length_ok is therefore false here (raw quote is 3 chars, not 20-200) -- this fixture intentionally targets the structural empty-inner rule rather than the length gate; see brief step 6 hedge and the final report for the reference-driver-observed gate_reason."
+}

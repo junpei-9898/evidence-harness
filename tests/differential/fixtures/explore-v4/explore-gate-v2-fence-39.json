@@ -1,0 +1,82 @@
+{
+  "id": "explore-gate-v2-fence-39",
+  "profile": "explore-v4",
+  "branch_tags": [
+    "gate:v2_fence_not_unwrapped"
+  ],
+  "workdir": {
+    "files": {
+      "docs/alpha.txt": "Alpha heading\nGenerated evidence confirms that the crimson valve closed automatically at noon.\nA [marker] appears only in this generated line.\n"
+    }
+  },
+  "question": "Inspect the generated evidence for case explore-gate-v2-fence-39.",
+  "config": {
+    "max_rounds": 6,
+    "max_tokens": 16384,
+    "temperature": 0,
+    "citation_contract": "v2"
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-1",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\": \"docs/alpha.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 4,
+        "total_tokens": 14
+      },
+      "model": "synthetic-model"
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "Generated answer.\n出典: docs/alpha.txt\n引用: ```Generated evidence confirms that the crimson valve closed automatically at noon.```"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 5,
+        "total_tokens": 17
+      },
+      "model": "synthetic-model"
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "8e2de95ad11339ae58661c850238e7dfae4dd4be55a77c2a80a2189d9b7998c0",
+      "25670ca45fa6026ba6d07a58fd6b3a9dec04101b085aee7599945c740364627a"
+    ],
+    "decisions": {
+      "tool_result_sha256": [
+        "907587203ce811f2dc8dd0409d64cc16cfc22ae3b20e6b373489436b9e8491cc"
+      ],
+      "stall_judgments": [],
+      "gate_reason": "quote_not_verbatim",
+      "gate_quote_length_ok": true,
+      "gate_quote_match_form": null,
+      "gate_quote_length_ok_matched": null,
+      "gate_contract": "v2.0-unwrap1"
+    }
+  }
+}

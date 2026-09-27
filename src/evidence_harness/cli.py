@@ -82,6 +82,7 @@ def _parser() -> argparse.ArgumentParser:
     explore.add_argument("--workdir", type=Path, required=True)
     explore.add_argument("--question", required=True)
     explore.add_argument("--max-tokens", type=int, default=16_384)
+    explore.add_argument("--citation-contract", choices=("v1", "v2"), default="v1")
     explore.add_argument("--api-key")
     explore.add_argument("--out", type=Path)
     lookup = subparsers.add_parser("lookup", help="run a lookup profile")
@@ -111,6 +112,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             model=args.model,
             base_url=args.base_url,
             max_tokens=args.max_tokens,
+            citation_contract=args.citation_contract,
             api_key=api_key,
         )
     elif args.command == "lookup":

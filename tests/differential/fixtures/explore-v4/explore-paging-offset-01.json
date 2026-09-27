@@ -75,7 +75,10 @@
       ],
       "stall_judgments": [],
       "gate_reason": "passed",
-      "gate_quote_length_ok": true
+      "gate_quote_length_ok": true,
+      "gate_quote_match_form": "raw",
+      "gate_quote_length_ok_matched": true,
+      "gate_contract": "v1"
     }
   }
 }

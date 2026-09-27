@@ -109,7 +109,10 @@
         }
       ],
       "gate_reason": "abstain",
-      "gate_quote_length_ok": null
+      "gate_quote_length_ok": null,
+      "gate_quote_match_form": null,
+      "gate_quote_length_ok_matched": null,
+      "gate_contract": null
     }
   }
 }

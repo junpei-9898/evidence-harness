@@ -12,6 +12,7 @@ nonce が tool 結果本文（`result.content`・メタデータ除外）に含�
 4. 6 ラウンド内に着地しない（`_structural_cap`: 最終 message が tool_calls あり／content 空／`finish_reason!="stop"`）とき **B3**: 最終ラウンドの `reasoning` から `{answer,nonce}` の草稿を全て拾い、**唯一**の草稿で・複合回答でなく・nonce が tool 結果本文に含まれるものだけ採択（`b3_reason`: `not_cap|no_draft|conflicting_drafts|compound_answer|nonce_ungrounded`）。採択後 `gate_final`（nonce 逐語接地）で再確認。
 5. まだ無ければ **救済 finalize**（7 回目の呼び出し・`extra_calls+=1`）: 履歴を捨て `[system, user = question + "\n\nEvidence collected (path: content):\n" + 各 read_file の path:content]` を tools なしで送る。返答を `final_answer` → `gate_final`（`unparseable_final_answer|empty_nonce|nonce_ungrounded` で拒否）。
 6. 拒否時は `harness_rejected=True, reject_reason` を残し、出荷 answer は None（棄権として扱う）。
+7. **値形式契約 `value_contract`**（プロファイル鍵・既定 `none`）: `digits-only` のとき、system を `SYSTEM.rstrip() + " " + <契約文>` に置き換える。契約文は逐語（`docs/PORTING.md` §1 の digest）: `The answer field must be a string consisting of ASCII digits only: no explanation, no units, and no other values. The nonce field contract is unchanged.`。救済 finalize（手順 5）と `lookup-c` の reset finalize も**同じ system** を使う。結果に `value_contract: {"name", "version", "sha256"}` を残す。数値が正答たり得る型にのみ使う（名前を答える型では棄権化する）。
 
 ## 2. `lookup-c`（OFF・Pc の上に重ねる）
 
@@ -26,6 +27,13 @@ nonce が tool 結果本文（`result.content`・メタデータ除外）に含�
 - 名前が正答たり得る型には適用しない（研究側の開示）。byte 凍結・digest は `docs/PORTING.md` §1。
 - CLI の `--rules` 指定時だけ `complete()` を出荷 answer に適用し、判定辞書を結果の `rules` に残す。
 
+## 3a. `selective_ra`（OFF・プロファイル鍵）
+
+- 出荷 answer が文字列で、R-A の `extract_value` が `unique_digit_token`（区切りで分割して純数字トークンがちょうど 1 つ）を返すときだけ、answer をその値に置換する。bare digits（`bare_digits`）・複数／0 件（`ambiguous`／`no_digit`）・非文字列は不変。
+- `complete()`（§3 `rules`）とは独立に適用でき、R-B の非着地化は行わない。`harness_rejected=True` の行には適用しない（出荷 answer が None）。
+- 結果に `ra_wrapper: {"version": "selective-ra-1.0", "rules_version", "rule_sha256", "extract_reason", "triggered", "changed_output", "shipped_before", "shipped_after"}` を残す（`shipped_*` は `answer/nonce/landing_source/harness_rejected/reject_reason`）。
+- 研究側では qwen3.8 の保存出力 320 行で正→誤 0・非発火行の出荷不変を確認して判断採用（`docs/CLAIMS.md`）。
+
 ## 4. 監視計器
 
-非接地出荷率（gate 通過後の answer が tool 本文に無い）・捏造 nonce 受理（0 が要件）・棄権率・overflow 率・追加呼出し数（`extra_calls`）・usage 合計。反転条件は `docs/MONITORS.md`。
+非接地出荷率（gate 通過後の answer が tool 本文に無い）・捏造 nonce 受理（0 が要件）・棄権率・overflow 率・追加呼出し数（`extra_calls`）・usage 合計。`value_contract` 有効時は **nonce 接頭辞欠落率**（出荷 nonce が `nonce-` で始まらない／strict が `nonce_not_exact_token` で拒否した割合）と **選択的 R-A 発火率**（契約下では 0 が期待値・5% 超は契約が効いていない兆候）を加える。反転条件は `docs/MONITORS.md`。

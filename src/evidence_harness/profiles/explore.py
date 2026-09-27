@@ -7,7 +7,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-from evidence_harness.gates.citation import ANSWER_FORMAT, apply_gate
+from evidence_harness.gates.citation import (
+    ANSWER_FORMAT,
+    GATE_CONTRACT_V1,
+    apply_gate,
+    normalize_citation_contract,
+)
 from evidence_harness.instruments.monitors import (
     has_pseudo_tool_syntax,
     measure,
@@ -66,6 +71,7 @@ def run_explore(
     max_tokens: int = 16_384,
     timeout: float = 900,
     api_key: str | None = None,
+    citation_contract: str = GATE_CONTRACT_V1,
 ) -> dict[str, Any]:
     """Run the frozen V4 exploration profile against a read-only work directory."""
     if max_rounds != 6:
@@ -122,7 +128,8 @@ def run_explore(
 
     last = rounds[-1]["message"] if rounds else {}
     pregate = last.get("content") if isinstance(last.get("content"), str) else None
-    gate = apply_gate(pregate, Ledger(rounds, manifest))
+    contract = normalize_citation_contract(citation_contract)
+    gate = apply_gate(pregate, Ledger(rounds, manifest), contract)
     final_content = gate["gated_content"]
     calls = recorder.drain()
     monitors = summarize_explore(rounds, gate, max_rounds=max_rounds)
@@ -144,6 +151,7 @@ def run_explore(
         "reset_round": None,
         "reset_reasons": [],
         "gate": gate,
+        "gate_contract": contract,
         "transport_calls": calls,
         **measure(rounds, final_content),
         **monitors,

@@ -7,8 +7,8 @@
 
 - **要求列**: transport に渡された payload ごとに、`task_id` を除去し `json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))` の sha256 を取った列。ヘッダは対象外。
 - **判定列**: プロファイルごとに定義する順序つき決定の列。
-  - explore-v4: 各ラウンドの `executions[*].result` の sha256（tool 実行結果）・`stall_judgments[*].fired/reasons`・最終 `gate.reason`（`passed|abstain|missing_source|missing_quote|source_not_fetched|quote_not_verbatim`）・`gate.quote_length_ok`。
-  - lookup-pc: `landing_source`（`native|b3|finalizer|None`）・`b3_reason`・`harness_rejected`・`reject_reason`・`extra_calls`・`model_calls`・出荷 `answer/nonce`。
+  - explore-v4: 各ラウンドの `executions[*].result` の sha256（tool 実行結果）・`stall_judgments[*].fired/reasons`・最終 `gate.reason`（`passed|abstain|missing_source|missing_quote|source_not_fetched|quote_not_verbatim`）・`gate.quote_length_ok`。`config.citation_contract`（既定 `v1`）が `v2` のときは `gate.quote_match_form`・`gate.quote_length_ok_matched` も判定列に含める。
+  - lookup-pc: `landing_source`（`native|b3|finalizer|None`）・`b3_reason`・`harness_rejected`・`reject_reason`・`extra_calls`・`model_calls`・出荷 `answer/nonce`。`config.value_contract`（既定 `none`）が `digits-only` のときは要求列 hash に契約つき system が乗る（それ自体が照合）。`config.selective_ra`（既定 `false`）が真のときは `ra_wrapper.extract_reason/triggered` と置換後の出荷 `answer` も判定列に含める。
   - lookup-c: 上記＋`gate_fired`・`checkpoint`・`strict_reject_reason`・retrieval の合成呼び出し引数列。
   - rules: `complete()` の返す dict 全体。
 - fixture の `expected` は、研究側の凍結モジュールを研究側チェックアウトの上で実行する参照実装ドライバ（研究側に置く・本リポには含めない）で生成し、fixture に焼き込む。本リポの CI は焼き込まれた値との一致だけを検査する。移植版の出力を expected に写すことは禁止。
@@ -52,10 +52,13 @@
 | C 層 | `c:early_gate_fired` `c:retrieve_0` `c:retrieve_1` `c:retrieve_2` `c:already_read_excluded` `c:strict_nonce_not_exact_token` `c:strict_answer_is_nonce_shaped` `c:reset_finalize_accept` `c:rescue_after_natural_nonland` |
 | 規則 | `ra:bare_digits` `ra:unique_digit_token` `ra:ambiguous` `ra:no_digit` `rb:all_identifiers` `rb:non_identifier` `rb:empty` |
 | transport | `tx:error_then_retry_ok` `tx:error_twice` `tx:bad_response_shape` |
+| 出典ゲート v2 | `gate:v2_unwrap_backtick` `gate:v2_unwrap_dquote` `gate:v2_raw_match_first` `gate:v2_asymmetric_not_unwrapped` `gate:v2_empty_inner_not_unwrapped` `gate:v2_fence_not_unwrapped` `gate:v1_same_input_rejected` |
+| 値形式契約 | `vc:system_appended` `vc:finalizer_reuses_system` `vc:c_reset_finalize_reuses_system` |
+| 選択的 R-A | `sra:unique_digit_token` `sra:bare_digits_unchanged` `sra:ambiguous_unchanged` `sra:no_digit_unchanged` `sra:rejected_row_untouched` |
 
 ## 4. 合格条件
 
 - 全 fixture で要求列 sha256 が完全一致（長さ含む）・判定列が完全一致。
-- 被覆表の全タグに 1 件以上・総数 ≥48。
+- 被覆表の全タグに 1 件以上・総数 ≥48（S5 追加タグ 15 を含めた床は 60）。
 - 実 FS の root 逸脱試験（`tests/test_root_escape.py`）が `..`・絶対パス・symlink の 3 経路で fail-closed。
 - 研究側の凍結モジュール digest（`docs/PORTING.md` §1）と移植元ファイル一式の digest が研究側の照合スクリプトで一致（研究側チェックアウトがある環境のみ・本リポの CI では行わない）。

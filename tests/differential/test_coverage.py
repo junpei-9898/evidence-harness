@@ -42,6 +42,13 @@ EXPLORE_TAGS = {
     "tx:error_then_retry_ok",
     "tx:error_twice",
     "tx:bad_response_shape",
+    "gate:v2_unwrap_backtick",
+    "gate:v2_unwrap_dquote",
+    "gate:v2_raw_match_first",
+    "gate:v2_asymmetric_not_unwrapped",
+    "gate:v2_empty_inner_not_unwrapped",
+    "gate:v2_fence_not_unwrapped",
+    "gate:v1_same_input_rejected",
 }
 
 LOOKUP_TAGS = {
@@ -94,5 +101,5 @@ def test_fixture_floor_and_lookup_branch_coverage() -> None:
     ]
     covered = {tag for case in lookup for tag in case.get("branch_tags", [])}
 
-    assert len(explore) + len(lookup) >= 48
+    assert len(explore) + len(lookup) >= 60
     assert LOOKUP_TAGS <= covered
