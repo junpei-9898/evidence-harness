@@ -28,6 +28,29 @@
 対照がこの型を可視化できることの確認であり、性能主張ではない。バッテリーの `correct` は answer のみで判定し、
 接地は `grounded`／`shipped_ungrounded` で別に出す。
 
+## Qwen3.8-Flash-Next: `qwen38-flash` プロファイル（vLLM・単一 Spark・thinking ON・`recipes/qwen38-flash-nvfp4-vllm.md` A）— 2026-09-28
+
+移植版 CLI（S5 の checkpoint プロファイル解決を含む）を実機に直列で流した。動作確認であり性能主張ではない。
+
+| プロファイル | 問い（合成） | 結果 | 経路 | 呼出し | usage |
+|---|---|---|---|---|---|
+| explore（`qwen38-flash`＝explore-v4＋`citation_contract: v2`） | 「orchard sync worker はアップロード失敗時に最大何回リトライするか」（gold は `worker.py` の定数と 21,000 字超の runbook 末尾に重複配置） | 正答 7・`出典: src/orchard/worker.py`・引用は逐語一致 → **gate passed（`quote_match_form=raw`・契約 v2.0-unwrap1 を結果に記録）** | glob → grep → read → 着地（3 ラウンド・stall は観測のみ） | 4 | prompt 5,765／completion 425・17 s |
+| lookup（`qwen38-flash`＝lookup-c＋`value_contract: digits-only`＋`selective_ra`） | 「active 設定の storage shard_limit の現在値と隣の nonce」（legacy に旧値 1200・active に 4820＋`nonce-k7x2m9`） | 出荷 `{"answer":"4820","nonce":"nonce-k7x2m9"}`・native 着地・strict 通過・`value_contract.sha256` が凍結 digest と一致・選択的 R-A は `bare_digits` で不発 | glob → grep×2 → read → 着地 | 3 | prompt 2,549／completion 247・7.7 s |
+
+### 公開バッテリー既定構成（`--profile qwen38-flash --seed 0 --n 8`・直列・約 37 分）
+
+| セット | 結果（記述） |
+|---|---|
+| lookup（6 型） | Y 8/8・nonce 接地 8/8・nonce 接頭辞欠落 0・非接地出荷 0・選択的 R-A 発火 0（全件 bare_digits）・着地は native 7／下書き拾い 1・エラー 0 |
+| controls | 証拠なし 3/3 棄権（正・救済 finalize→`unparseable_final_answer`）・紛らわしい出典 3/3 正（権威側の値）・**名前正答 2 件は 1 件棄権・1 件が数値 `28` を出荷（誤答・接地はしている）** |
+| supplied（証拠差し替え A/B） | counter-default 4/4 が A/B とも証拠追随・prior_pull 0。**fictional（名前が正答）4 件は 1 件のみ A/B 両追随**。残りは棄権 3 セル・数値化 2 セル（`27`、および正答名 `verdant` を **ASCII コード列 `11810111410097110116` に符号化して出荷**） |
+| explore（deep 4／shallow 4） | E 7/8・gate passed 7（全て raw 一致・unwrap 発火 0）・1 件が round 上限（6）に達し `missing_source`・overflow 0・エラー 0 |
+
+観察:
+- 値形式契約（digits-only）を**名前が正答になる型に当てると害が出る**ことが対照で再現した。棄権に加えて、名前を数字列に符号化して契約を満たす行動（1 件）が出た。これは「数字だけ」という契約を字義どおりに満たす Goodhart で、`docs/CLAIMS.md` §2 の「名前型には使わない」注意の実例。バッテリーの対照はこの型を可視化できる。
+- 探索面は round 上限 1/8（証拠に到達しないまま探索継続）が出た。研究側で観測済みの cap の型で、ハーネスは介入しない（記録のみ）。
+- 移植版の transport／tools 往復／契約つき system／選択的 R-A／ゲート v2 の経路が vLLM 実機で動くことを確認した（同値は差分試験が担保）。
+
 ## Mercor: 未実施（載せ替え時期は作者判断）
 
 ## 移植性修正後の再 smoke（base・実機 1 台・直列）
