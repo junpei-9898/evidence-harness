@@ -17,6 +17,12 @@ from evidence_harness.gates.finalize import (
 from evidence_harness.gates.grounding import final_answer
 from evidence_harness.instruments.usage import UsageRecorder, summarize_calls
 from evidence_harness.loop.messages import _append_exchange, _execute, _record_message
+from evidence_harness.profiles.contracts import (
+    CONTRACT_VERSION,
+    apply_value_contract,
+    contract_sha256,
+)
+from evidence_harness.rules.selective_ra import apply_selective_ra
 from evidence_harness.tools.base import execute_tool_call
 from evidence_harness.tools.schema import TOOLS_BASE
 from evidence_harness.transport import (
@@ -32,6 +38,26 @@ SYSTEM = (
     "string fields answer and nonce."
 )
 DEFAULT_SAMPLING: dict[str, Any] = {"temperature": 0.7}
+
+
+def _value_contract_system(value_contract: str) -> str:
+    """Return the lookup SYSTEM prompt, with the value-format contract appended when active."""
+    if value_contract == "none":
+        return SYSTEM
+    if value_contract == "digits-only":
+        return apply_value_contract(SYSTEM)
+    raise ValueError(f"unknown value_contract: {value_contract!r}")
+
+
+def _value_contract_metadata(value_contract: str) -> dict[str, Any]:
+    """Return the ``result['value_contract']`` audit dict for the chosen contract mode."""
+    if value_contract not in ("none", "digits-only"):
+        raise ValueError(f"unknown value_contract: {value_contract!r}")
+    return {
+        "name": value_contract,
+        "version": CONTRACT_VERSION,
+        "sha256": contract_sha256() if value_contract == "digits-only" else None,
+    }
 
 
 def _sampling(sampling: Mapping[str, Any] | None) -> dict[str, Any]:
@@ -127,10 +153,12 @@ def _finish(
     result: dict[str, Any],
     answer: Mapping[str, str] | None,
     recorder: UsageRecorder,
+    attempted: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
-    if answer is not None:
-        result["answer"] = answer["answer"]
-        result["nonce"] = answer["nonce"]
+    observed = answer or attempted
+    if observed is not None:
+        result["answer"] = observed["answer"]
+        result["nonce"] = observed["nonce"]
     result["usage"] = summarize_calls(recorder.drain())
     return result
 
@@ -148,13 +176,16 @@ def run_lookup(
     timeout: float = 600,
     chat_template_kwargs: Mapping[str, Any] | None = DEFAULT_CHAT_TEMPLATE_KWARGS,
     api_key: str | None = None,
+    value_contract: str = "none",
+    selective_ra: bool = False,
 ) -> dict[str, Any]:
     """Run the frozen Pc lookup pipeline directly against ``workdir``."""
     chosen = _sampling(sampling)
     result = _base_result(chosen)
+    result["value_contract"] = _value_contract_metadata(value_contract)
     state = {
         "prefix_messages": [
-            {"role": "system", "content": SYSTEM},
+            {"role": "system", "content": _value_contract_system(value_contract)},
             {"role": "user", "content": question},
         ],
         "tools": TOOLS_BASE,
@@ -239,7 +270,9 @@ def run_lookup(
             else:
                 result["harness_rejected"], result["reject_reason"] = True, reason
 
-        return _finish(result, answer, recorder)
+        final = _finish(result, answer, recorder, attempted)
+        return apply_selective_ra(final) if selective_ra else final
     except Exception as error:
         result["error"] = {"type": type(error).__name__, "message": str(error)}
-        return _finish(result, None, recorder)
+        final = _finish(result, None, recorder)
+        return apply_selective_ra(final) if selective_ra else final

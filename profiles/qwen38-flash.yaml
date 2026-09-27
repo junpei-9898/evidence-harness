@@ -1,0 +1,9 @@
+# checkpoint 別プロファイル（Qwen3.8-Flash-Next NVFP4・vLLM・thinking ON）。lookup は C 層＋値形式契約＋選択的 R-A・explore は v4＋出典ゲート契約 v2（docs/CLAIMS.md）。
+profile: qwen38-flash
+lookup: lookup-c
+explore: explore-v4
+value_contract: digits-only
+selective_ra: true
+citation_contract: v2
+rules: false
+recipe: recipes/qwen38-flash-nvfp4-vllm.md

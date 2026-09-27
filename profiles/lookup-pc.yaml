@@ -9,3 +9,5 @@ b3_draft: true
 rescue_finalize: true
 c_layer: false
 rules: false
+value_contract: none
+selective_ra: false

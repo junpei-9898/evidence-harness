@@ -10,6 +10,7 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from evidence_harness.cli import _available_profile_names, resolve_profile
 from evidence_harness.profiles.explore import run_explore
 from evidence_harness.profiles.lookup import run_lookup
 from evidence_harness.profiles.lookup_c import run_lookup_c
@@ -31,9 +32,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m battery.run")
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--model", required=True)
-    parser.add_argument(
-        "--profile", choices=("lookup-pc", "lookup-c", "explore-v4"), required=True
-    )
+    parser.add_argument("--profile", choices=_available_profile_names(), required=True)
     parser.add_argument(
         "--set",
         dest="set_name",
@@ -48,11 +47,13 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _validate_pairing(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
-    if args.set_name == "explore" and args.profile != "explore-v4":
-        parser.error("the explore set requires --profile explore-v4")
-    if args.set_name != "explore" and args.profile == "explore-v4":
-        parser.error("explore-v4 can only run the explore set")
+def _validate_pairing(parser: argparse.ArgumentParser, args: argparse.Namespace) -> dict[str, Any]:
+    command = "explore" if args.set_name == "explore" else "lookup"
+    try:
+        return resolve_profile(command, args.profile)
+    except ValueError as error:
+        parser.error(str(error))
+        raise AssertionError("unreachable") from error  # pragma: no cover
 
 
 def _items(set_name: str, seed: int, n: int) -> list[dict[str, Any]]:
@@ -83,8 +84,8 @@ def _completed_ids(path: Path) -> set[str]:
     return completed
 
 
-def _lookup_runner(profile: str) -> LookupRunner:
-    return run_lookup_c if profile == "lookup-c" else run_lookup
+def _lookup_runner(resolved_profile: Mapping[str, Any]) -> LookupRunner:
+    return run_lookup_c if resolved_profile.get("c_layer") else run_lookup
 
 
 def _run_lookup_item(
@@ -94,11 +95,19 @@ def _run_lookup_item(
     base_url: str,
     model: str,
     api_key: str | None,
+    value_contract: str,
+    selective_ra: bool,
 ) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="evidence-battery-") as directory:
         root = lookup_families.materialize(item, directory)
         return runner(
-            item["question"], root, model=model, base_url=base_url, api_key=api_key
+            item["question"],
+            root,
+            model=model,
+            base_url=base_url,
+            api_key=api_key,
+            value_contract=value_contract,
+            selective_ra=selective_ra,
         )
 
 
@@ -109,6 +118,8 @@ def _run_supplied_item(
     base_url: str,
     model: str,
     api_key: str | None,
+    value_contract: str,
+    selective_ra: bool,
 ) -> dict[str, dict[str, Any]]:
     variants = item.get("variants")
     if not isinstance(variants, Mapping):
@@ -126,11 +137,14 @@ def _run_supplied_item(
                 model=model,
                 base_url=base_url,
                 api_key=api_key,
+                value_contract=value_contract,
+                selective_ra=selective_ra,
             )
     return results
 
 
 def _run_one(item: Mapping[str, Any], args: argparse.Namespace) -> dict[str, Any]:
+    resolved_profile: Mapping[str, Any] = args.resolved_profile
     metadata = {
         "id": item["id"],
         "set": args.set_name,
@@ -147,10 +161,13 @@ def _run_one(item: Mapping[str, Any], args: argparse.Namespace) -> dict[str, Any
                 model=args.model,
                 base_url=args.base_url,
                 api_key=args.api_key,
+                citation_contract=str(resolved_profile.get("citation_contract", "v1")),
             )
         return {**metadata, "result": result, "score": score_explore(item, result)}
 
-    runner = _lookup_runner(args.profile)
+    runner = _lookup_runner(resolved_profile)
+    value_contract = str(resolved_profile.get("value_contract", "none"))
+    selective_ra = bool(resolved_profile.get("selective_ra", False))
     if args.set_name == "supplied":
         results = _run_supplied_item(
             item,
@@ -158,6 +175,8 @@ def _run_one(item: Mapping[str, Any], args: argparse.Namespace) -> dict[str, Any
             base_url=args.base_url,
             model=args.model,
             api_key=args.api_key,
+            value_contract=value_contract,
+            selective_ra=selective_ra,
         )
         return {**metadata, "results": results, "score": score_supplied(item, results)}
 
@@ -167,6 +186,8 @@ def _run_one(item: Mapping[str, Any], args: argparse.Namespace) -> dict[str, Any
         base_url=args.base_url,
         model=args.model,
         api_key=args.api_key,
+        value_contract=value_contract,
+        selective_ra=selective_ra,
     )
     scorer = score_control if args.set_name == "controls" else score_lookup
     return {**metadata, "result": result, "score": scorer(item, result)}
@@ -182,7 +203,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
     args.api_key = args.api_key or os.environ.get("EVIDENCE_HARNESS_API_KEY")
-    _validate_pairing(parser, args)
+    args.resolved_profile = _validate_pairing(parser, args)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     completed = _completed_ids(args.out) if args.resume else set()
     if not args.resume:

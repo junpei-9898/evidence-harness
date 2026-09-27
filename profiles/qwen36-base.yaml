@@ -1,0 +1,11 @@
+# checkpoint 別プロファイル（Qwen3.6-35B-A3B base・NVFP4・vLLM）。Pc 相当＋v4 探索。
+# 数値 lookup 型では lookup-c／--rules を明示 ON にできる。
+profile: qwen36-base
+lookup: lookup-pc
+explore: explore-v4
+c_layer: false
+value_contract: none
+selective_ra: false
+citation_contract: v1
+rules: false
+recipe: recipes/qwen36-base-nvfp4-vllm.md

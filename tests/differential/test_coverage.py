@@ -82,6 +82,14 @@ LOOKUP_TAGS = {
     "rb:all_identifiers",
     "rb:non_identifier",
     "rb:empty",
+    "vc:system_appended",
+    "vc:finalizer_reuses_system",
+    "vc:c_reset_finalize_reuses_system",
+    "sra:unique_digit_token",
+    "sra:bare_digits_unchanged",
+    "sra:ambiguous_unchanged",
+    "sra:no_digit_unchanged",
+    "sra:rejected_row_untouched",
 }
 
 

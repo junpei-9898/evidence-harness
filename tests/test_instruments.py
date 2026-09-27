@@ -8,6 +8,8 @@ from evidence_harness.instruments import usage as usage_module
 from evidence_harness.instruments.monitors import (
     has_pseudo_tool_syntax,
     measure,
+    nonce_prefix_missing_rate,
+    selective_ra_fire_rate,
     summarize_explore,
 )
 from evidence_harness.instruments.usage import UsageRecorder, retrying, summarize_calls
@@ -180,3 +182,33 @@ def test_summarize_explore_does_not_count_abstain_as_success() -> None:
 
     assert actual["abstain"] and actual["tokens_per_success"] is None
     assert not actual["finish_reason_length"] and not actual["round_cap"]
+
+
+def test_nonce_prefix_missing_rate_empty_input_is_zero() -> None:
+    assert nonce_prefix_missing_rate([]) == 0.0
+
+
+def test_nonce_prefix_missing_rate_counts_missing_prefix_and_strict_rejection() -> None:
+    rows = [
+        {"nonce": "nonce-real"},
+        {"nonce": "not-prefixed"},
+        {"nonce": None},
+        {"nonce": "nonce-real", "strict_reject_reason": "nonce_not_exact_token"},
+    ]
+
+    assert nonce_prefix_missing_rate(rows) == 0.75
+
+
+def test_selective_ra_fire_rate_empty_input_is_zero() -> None:
+    assert selective_ra_fire_rate([]) == 0.0
+
+
+def test_selective_ra_fire_rate_counts_triggered_wrapper_rows() -> None:
+    rows = [
+        {"ra_wrapper": {"triggered": True}},
+        {"ra_wrapper": {"triggered": False}},
+        {"ra_wrapper": None},
+        {},
+    ]
+
+    assert selective_ra_fire_rate(rows) == 0.25

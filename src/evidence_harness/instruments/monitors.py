@@ -92,6 +92,45 @@ def _numeric_usage(usage: Mapping[str, Any], key: str) -> int | float:
     return value if isinstance(value, (int, float)) and not isinstance(value, bool) else 0
 
 
+_NONCE_PREFIX = "nonce-"
+
+
+def nonce_prefix_missing_rate(rows: Iterable[Mapping[str, Any]]) -> float:
+    """Share of rows whose shipped nonce fails the frozen ``nonce-`` prefix contract.
+
+    A row counts as a miss when its shipped ``nonce`` is not a string starting with
+    ``"nonce-"``, or when the identity-strict gate rejected the row specifically for
+    ``nonce_not_exact_token`` (a well-formed but fabricated nonce, only observable via
+    ``strict_reject_reason`` on C-layer rows). Returns ``0.0`` for an empty input.
+    """
+    total = 0
+    misses = 0
+    for row in rows:
+        total += 1
+        nonce = row.get("nonce")
+        prefix_missing = not (isinstance(nonce, str) and nonce.startswith(_NONCE_PREFIX))
+        strict_miss = row.get("strict_reject_reason") == "nonce_not_exact_token"
+        if prefix_missing or strict_miss:
+            misses += 1
+    return misses / total if total else 0.0
+
+
+def selective_ra_fire_rate(rows: Iterable[Mapping[str, Any]]) -> float:
+    """Share of rows where selective R-A replaced the shipped answer.
+
+    Reads ``row["ra_wrapper"]["triggered"]``; rows without an ``ra_wrapper`` (selective
+    R-A not applied) count as not fired. Returns ``0.0`` for an empty input.
+    """
+    total = 0
+    fired = 0
+    for row in rows:
+        total += 1
+        wrapper = row.get("ra_wrapper")
+        if isinstance(wrapper, Mapping) and wrapper.get("triggered"):
+            fired += 1
+    return fired / total if total else 0.0
+
+
 def summarize_explore(
     rounds: list[dict[str, Any]],
     gate: Mapping[str, Any],

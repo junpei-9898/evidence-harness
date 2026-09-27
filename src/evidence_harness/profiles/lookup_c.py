@@ -18,6 +18,7 @@ from evidence_harness.gates.grounding import final_answer, is_grounded
 from evidence_harness.gates.identity import strict_gate
 from evidence_harness.instruments.usage import UsageRecorder
 from evidence_harness.loop.messages import _append_exchange, _record_message
+from evidence_harness.rules.selective_ra import apply_selective_ra
 from evidence_harness.tools.base import execute_tool_call
 from evidence_harness.tools.schema import TOOLS_BASE
 from evidence_harness.transport import (
@@ -27,7 +28,15 @@ from evidence_harness.transport import (
     http_transport,
 )
 
-from .lookup import DEFAULT_SAMPLING, SYSTEM, _base_result, _finish, _model_round, _sampling
+from .lookup import (
+    DEFAULT_SAMPLING,
+    _base_result,
+    _finish,
+    _model_round,
+    _sampling,
+    _value_contract_metadata,
+    _value_contract_system,
+)
 
 
 def _read_paths(rounds: list[dict[str, Any]]) -> set[str]:
@@ -133,14 +142,17 @@ def run_lookup_c(
     timeout: float = 600,
     chat_template_kwargs: Mapping[str, Any] | None = DEFAULT_CHAT_TEMPLATE_KWARGS,
     api_key: str | None = None,
+    value_contract: str = "none",
+    selective_ra: bool = False,
 ) -> dict[str, Any]:
     """Run the frozen C lookup pipeline directly against ``workdir``."""
     chosen = _sampling(sampling)
     result = _base_result(chosen)
+    result["value_contract"] = _value_contract_metadata(value_contract)
     result.update(gate_fired=False, checkpoint="none", strict_reject_reason=None)
     state = {
         "prefix_messages": [
-            {"role": "system", "content": SYSTEM},
+            {"role": "system", "content": _value_contract_system(value_contract)},
             {"role": "user", "content": question},
         ],
         "tools": TOOLS_BASE,
@@ -293,8 +305,10 @@ def run_lookup_c(
                     result["reject_reason"] = strict_reason
 
         result["model_calls"] = model_calls
-        return _finish(result, answer, recorder)
+        final = _finish(result, answer, recorder, attempted)
+        return apply_selective_ra(final) if selective_ra else final
     except Exception as error:
         result["model_calls"] = model_calls
         result["error"] = {"type": type(error).__name__, "message": str(error)}
-        return _finish(result, None, recorder)
+        final = _finish(result, None, recorder)
+        return apply_selective_ra(final) if selective_ra else final

@@ -3,5 +3,8 @@ profile: qwen36-mercor
 lookup: lookup-pc
 explore: explore-v4
 c_layer: false
+value_contract: none
+selective_ra: false
+citation_contract: v1
 rules: false
 recipe: recipes/qwen36-mercor-nvfp4-vllm.md

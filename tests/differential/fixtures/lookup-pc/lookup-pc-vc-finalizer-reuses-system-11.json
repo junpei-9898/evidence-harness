@@ -1,0 +1,89 @@
+{
+  "id": "lookup-pc-vc-finalizer-reuses-system-11",
+  "profile": "lookup-pc",
+  "branch_tags": [
+    "b3:not_cap",
+    "fin:accepted",
+    "vc:finalizer_reuses_system"
+  ],
+  "workdir": {
+    "files": {
+      "docs/value.txt": "value=42\nnonce-real\n"
+    }
+  },
+  "question": "Read and return the synthetic value.",
+  "config": {
+    "value_contract": "digits-only"
+  },
+  "responses": [
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": null,
+            "tool_calls": [
+              {
+                "id": "call-read",
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": "{\"path\":\"docs/value.txt\"}"
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 2
+      }
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "Synthetic prose without JSON."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {}
+    },
+    {
+      "choices": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": "{\"answer\": \"42\", \"nonce\": \"nonce-real\"}"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 4
+      }
+    }
+  ],
+  "expected": {
+    "request_sha256": [
+      "b0d270301e43bd1dbbc4cd1dfa71fa48b0cfee221c21253fa052d06687365d03",
+      "99eefed890ed933a7a2ec901c5ca52c848d13f1a6e08675146548622c0dd5b73",
+      "79cc949e586ddb8f266474071c4b6237d2efc4e61e417a70c214b9fedbf94592"
+    ],
+    "decisions": {
+      "landing_source": "finalizer",
+      "b3_reason": "not_cap",
+      "harness_rejected": false,
+      "reject_reason": null,
+      "extra_calls": 1,
+      "model_calls": 3,
+      "answer": "42",
+      "nonce": "nonce-real"
+    }
+  }
+}

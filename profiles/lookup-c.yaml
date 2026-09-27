@@ -3,3 +3,5 @@ extends: lookup-pc
 c_layer: true
 identity_strict: true
 retrieval_max_reads: 2
+value_contract: none
+selective_ra: false

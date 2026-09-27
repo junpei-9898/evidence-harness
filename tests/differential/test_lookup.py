@@ -37,6 +37,8 @@ def test_lookup_matches_reference(case: dict[str, Any], tmp_path) -> None:
         max_tokens=config.get("max_tokens", 4_096),
         sampling=config.get("sampling", {"temperature": 0.7}),
         timeout=config.get("timeout", 600),
+        value_contract=config.get("value_contract", "none"),
+        selective_ra=config.get("selective_ra", False),
     )
 
     assert lookup_decisions(result, profile=case["profile"]) == case["expected"]["decisions"]

@@ -106,3 +106,72 @@ def test_cli_passes_environment_api_key_to_runner(tmp_path: Path, monkeypatch) -
     ])
 
     assert captured == ["battery-key"]
+
+
+def test_cli_accepts_checkpoint_profile_and_wires_overrides(
+    tmp_path: Path, monkeypatch
+) -> None:
+    output = tmp_path / "results.jsonl"
+    captured = []
+
+    def fake_lookup(question, root, **options):
+        captured.append(options)
+        return {"answer": None, "nonce": None, "rounds": []}
+
+    monkeypatch.setattr(battery_run, "run_lookup_c", fake_lookup)
+
+    status = battery_run.main([
+        "--base-url", "http://model.invalid/v1",
+        "--model", "synthetic-model",
+        "--profile", "qwen38-flash",
+        "--set", "lookup",
+        "--n", "1",
+        "--out", str(output),
+    ])
+
+    assert status == 0
+    assert len(captured) == 1
+    assert captured[0]["value_contract"] == "digits-only"
+    assert captured[0]["selective_ra"] is True
+
+
+def test_explore_cli_accepts_checkpoint_profile_and_wires_citation_contract(
+    tmp_path: Path, monkeypatch
+) -> None:
+    output = tmp_path / "explore.jsonl"
+    captured = []
+
+    def fake_explore(question, root, **options):
+        captured.append(options)
+        return {
+            "answer": None,
+            "citations": [],
+            "rounds": [],
+            "gate": {"pass": False, "checks": {}},
+        }
+
+    monkeypatch.setattr(battery_run, "run_explore", fake_explore)
+
+    status = battery_run.main([
+        "--base-url", "http://model.invalid/v1",
+        "--model", "synthetic-model",
+        "--profile", "qwen38-flash",
+        "--set", "explore",
+        "--n", "1",
+        "--out", str(output),
+    ])
+
+    assert status == 0
+    assert len(captured) == 1
+    assert captured[0]["citation_contract"] == "v2"
+
+
+def test_cli_rejects_lookup_only_checkpoint_style_mismatch(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit):
+        battery_run.main([
+            "--base-url", "http://model.invalid/v1",
+            "--model", "synthetic-model",
+            "--profile", "lookup-c",
+            "--set", "explore",
+            "--out", str(tmp_path / "results.jsonl"),
+        ])

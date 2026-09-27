@@ -9,6 +9,8 @@ from typing import Any
 
 import pytest
 
+from evidence_harness.profiles.contracts import CONTRACT_SENTENCE
+
 FIXTURE_BASE = Path(__file__).parent / "fixtures"
 FIXTURE_ROOT = FIXTURE_BASE / "explore-v4"
 
@@ -78,6 +80,12 @@ def lookup_decisions(result: Mapping[str, Any], *, profile: str) -> dict[str, An
     if selected["harness_rejected"]:
         selected["answer"] = None
         selected["nonce"] = None
+    ra_wrapper = result.get("ra_wrapper")
+    if ra_wrapper is not None:
+        selected["ra_wrapper"] = {
+            "extract_reason": ra_wrapper.get("extract_reason"),
+            "triggered": ra_wrapper.get("triggered"),
+        }
     if profile != "lookup-c":
         return selected
     selected.update(
@@ -163,6 +171,29 @@ def assert_lookup_branch_observed(
         assert decision["landing_source"] == "finalizer" and decision["gate_fired"] is True
     if "c:rescue_after_natural_nonland" in tags:
         assert decision["landing_source"] == "finalizer_rescue"
+    if "vc:system_appended" in tags:
+        assert transport.payloads[0]["messages"][0]["content"].endswith(CONTRACT_SENTENCE)
+    if "vc:finalizer_reuses_system" in tags:
+        final_request = transport.payloads[-1]
+        assert final_request["messages"][0]["content"].endswith(CONTRACT_SENTENCE)
+    if "vc:c_reset_finalize_reuses_system" in tags:
+        final_request = transport.payloads[-1]
+        assert final_request["messages"][0]["content"].endswith(CONTRACT_SENTENCE)
+    sra_extract_reasons = {
+        "unique_digit_token": "unique_digit_token",
+        "bare_digits_unchanged": "bare_digits",
+        "ambiguous_unchanged": "ambiguous_digit_tokens",
+        "no_digit_unchanged": "no_digit_token",
+        "rejected_row_untouched": "bare_digits",
+    }
+    for tag_suffix, reason in sra_extract_reasons.items():
+        if f"sra:{tag_suffix}" in tags:
+            ra_wrapper = decision.get("ra_wrapper") or {}
+            assert ra_wrapper.get("extract_reason") == reason
+            assert ra_wrapper.get("triggered") is (tag_suffix == "unique_digit_token")
+    if "sra:rejected_row_untouched" in tags:
+        assert decision["harness_rejected"] is True
+        assert decision["answer"] is None
 
 
 def assert_rules_branch_observed(
