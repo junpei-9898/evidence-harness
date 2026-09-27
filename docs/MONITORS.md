@@ -11,4 +11,5 @@
 | 追加呼出し | 救済 finalize・retrieval の回数 | 平均 >1.5/問 |
 | 引用ゲート拒否率（explore） | `quote_not_verbatim`＋`source_not_fetched` | 記述のみ |
 | nonce 接頭辞欠落率 | 出荷 nonce が `nonce-` で始まらない、または strict の `nonce_not_exact_token` 拒否 | 素の応答＋2.5pt 超 |
+| unwrap 発火率（explore・`citation_contract: v2`） | `gate.quote_match_form` が `unwrapped_*` の割合 | 10% 超、または unwrap 発火走で本文誤答 ≥1・非接地出荷 ≥1 |
 | 選択的 R-A 発火率 | `ra_wrapper.triggered` の割合 | 値形式契約 ON 時に 5% 超＝契約が効いていない兆候・契約 OFF 時は記述のみ |
